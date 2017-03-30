@@ -5,9 +5,10 @@ library(plotly)
 # Defines a function to Overlay and Highlight Polyfunctional Cell Subsets on a FACS plot
 # This function assumes there are two columns, conditioncol and conditioncol2, upon which you are stratifying the plots
 # 
+# Required Arguments:
 # path: path to directory holding GatingSetList
-# outdir: saves image in output directory, if given
-# ptid: PTID of the person whose data you want to plot
+# individualsCol: column which defines individual
+# individual: value of individual in individualsCol whose data you want to plot
 # conditioncol: name of the column that defines the main experimental condition, e.g. Antigen
 # exp: experimental value in conditioncol, e.g. ESAT-6
 # ctrl: control value in conditioncol, e.g. DMSO
@@ -17,9 +18,13 @@ library(plotly)
 # xaxis: a marker name to plot on the x-axis
 # yaxis a marker name to plot on the y-axis
 #
+# Optional Argument:
+# outdir: saves image in output directory, if given
+#
 # Example usage:
 # highlight.boolean.subset.facs.plot(path="/home/malisa/GatingSetListAllBatches",
-#                                    ptid=12345678,
+#                                    individualsCol="PTID",
+#                                    individual=12345678,
 #                                    conditioncol="Antigen",
 #                                    exp="ESAT-6",
 #                                    ctrl="DMSO",
@@ -32,7 +37,8 @@ library(plotly)
 # TODO: check all required parameters exist
 highlight.boolean.subset.facs.plot <- function(path,
                                                outdir=NULL,
-                                               ptid,
+                                               individualsCol,
+                                               individual,
                                                conditioncol,
                                                exp,
                                                ctrl,
@@ -44,7 +50,7 @@ highlight.boolean.subset.facs.plot <- function(path,
                                                
 ) {
   gs <- load_gslist(path)
-  metaSub <- pData(gs)[pData(gs)["PTID"] == ptid & (pData(gs)[conditioncol] == exp | pData(gs)[conditioncol] == ctrl),]
+  metaSub <- pData(gs)[pData(gs)[individualsCol] == individual & (pData(gs)[conditioncol] == exp | pData(gs)[conditioncol] == ctrl),]
   gsSub <- gs[rownames(metaSub)]
   # getNodes(gsSub[[1]], path="auto")
   
@@ -61,7 +67,7 @@ highlight.boolean.subset.facs.plot <- function(path,
   gsSubMetaData <- cbind(gsSubMetaData, rownames(gsSubMetaData))
   colnames(gsSubMetaData)[length(colnames(gsSubMetaData))] <- "row.names"
   boolsubsetPopStatsMerge <- merge(x=boolsubsetPopStats[, c("name", "Population", "Count", "Percent")], y=gsSubMetaData[, c("row.names", conditioncol, conditioncol2)], by.x="name", by.y="row.names")
-  facstitle <- paste(c("PTID ", as.character(ptid), ", ", parentsubset, " cells\nResponse to ", exp, " vs ", conditioncol2), collapse="")
+  facstitle <- paste(c(individualsCol, " ", as.character(individual), ", ", parentsubset, " cells\nResponse to ", exp, " vs ", conditioncol2), collapse="")
   subtitle1 <- paste(c("Full Boolean Subset:\n", boolsubset), collapse="")
   
   facsplot <- ggcyto(gsSub, aes_string(x=xaxis, y=yaxis), subset=parentsubset) + 
@@ -80,7 +86,7 @@ highlight.boolean.subset.facs.plot <- function(path,
     possubset <- subsetsmpl[grep("!", subsetsmpl, invert=TRUE)]
     # Rewrite as one string
     possubset <- paste(lapply(possubset, function(x) {splt <- strsplit(x, "/")[[1]]; splt[length(splt)][[1]]}), collapse="")
-    ggsave(filename=paste(c("FACSplot_PTID", ptid, "_", parentsubset, "_", exp, "_", possubset, ".png"), collapse=""), plot=facsplot, path=outdir, device="png")
+    ggsave(filename=paste(c("FACSplot_", individualsCol, "_", individual, "_", parentsubset, "_", exp, "_", possubset, ".png"), collapse=""), plot=facsplot, path=outdir, device="png")
   } else {
     facsplot
   }

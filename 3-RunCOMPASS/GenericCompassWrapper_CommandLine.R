@@ -6,7 +6,6 @@ library(optparse)
 #                  Rscript GenericCompassWrapper_CommandLine.R --help
 
 # Assumptions: pData trt column contains "Treatment" and "Control" labels
-# If lineplotxvar is not NULL, pData contains PTID column
 option_list <- list(
   make_option(c("-p", "--path"), default=NULL,
               help="REQUIRED The path to the folder in which the GatingSetList is saved [default \"%default\"]"),
@@ -29,7 +28,9 @@ option_list <- list(
   make_option(c("-l", "--lineplotxvar"), default=NULL,
               help="optional pData column which defines groups along x-axis in FS-score line plot, e.g. Time [default \"%default\"]"),
   make_option(c("-t", "--iterations"), default=40000,
-              help="optional number of iterations for COMPASS to run [default %default]")
+              help="optional number of iterations for COMPASS to run [default %default]"),
+  make_option(c("-b", "--lineplotgroupby"), default=NULL,
+              help="optional, but should be specified if lineplotxvar is given. pData column which defines which values to connect in the line plot (usually something like PTID) [default %default]")
 )
 
 opt <- parse_args(OptionParser(option_list=option_list))
@@ -65,4 +66,5 @@ generic.compass.wrapper(path=opt$path,
                         grouping=tmpGrouping,
                         uniqueruns=opt$uniqueruns,
                         lineplotxvar=opt$lineplotxvar,
-                        iter=opt$iterations)
+                        iter=opt$iterations,
+                        lineplotgroupby=opt$lineplotgroupby)

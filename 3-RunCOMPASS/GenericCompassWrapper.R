@@ -17,7 +17,8 @@ run.compass.once <- function(gs1,
                              run1=NULL,
                              outdir1,
                              uniqueruns1,
-                             grouping1) {
+                             grouping1,
+                             lineplotgroupby1,) {
   gsListForCOMPASSsub <- gs1
   cnode <- cnode1
   individuals <- individuals1
@@ -28,6 +29,7 @@ run.compass.once <- function(gs1,
   outdir=outdir1
   uniqueruns=uniqueruns1
   grouping=grouping1
+  lineplotgroupby=lineplotgroupby1
   
   # Create a COMPASSContainer from the GatingSetList.
   CC <- COMPASSContainerFromGatingSet(gsListForCOMPASSsub, node=cnode, individual_id=individuals,
@@ -90,7 +92,7 @@ run.compass.once <- function(gs1,
     metasub <- pData(gsListForCOMPASSsub)
     fsplotdf <- merge(x=metasub[metasub[,uniqueruns]==run,], y=FSdf, by.x=individuals, by.y=individuals)
     # Draw the line plot
-    lineplot <- ggplot(data=fsplotdf, aes(x=factor(get(lineplotxvar)), y=FunctionalityScore, group=PTID)) +
+    lineplot <- ggplot(data=fsplotdf, aes(x=factor(get(lineplotxvar)), y=FunctionalityScore, group=factor(get(lineplotgroupby)))) +
       geom_point() + geom_line() +
       labs(title=paste(c("Functionality Score vs. ", lineplotxvar, " Line Plot,\n", cnode, " ", run), collapse=""),
            x=lineplotxvar) +
@@ -139,12 +141,16 @@ run.compass.once <- function(gs1,
 # optional pData column which defines groups along x-axis in FS-score line plot, e.g. Time [default NULL]
 #
 # iter
-# Number of COMPASS iterations to perform on each repitition (8 repititions total) [default 40,000]
+# Number of COMPASS iterations to perform on each repitition (8 repetitions total) [default 40,000]
+#
+# lineplotgroupby
+# This should be specified if lineplotxvar is given. pData column which defines which values to connect
+# in the line plot (usually something like "PTID")
 ###################################################################################################
 # Assumptions: pData trt column contains "Treatment" and "Control" labels
-# If lineplotxvar is not NULL, pData contains PTID column
 #
 # TODO: run in parallel
+# TODO: test for single run from command line
 generic.compass.wrapper <- function(path=NULL,
                                     seed=NULL,
                                     outdir=NULL,
@@ -154,7 +160,8 @@ generic.compass.wrapper <- function(path=NULL,
                                     grouping=NULL,
                                     uniqueruns=NULL,
                                     lineplotxvar=NULL,
-                                    iter=40000) {
+                                    iter=40000,
+                                    lineplotgroupby=NULL) {
   # Check that required arguments are provided
   if (is.null(path)) {
     stop("Path parameter must be provided.")
@@ -170,6 +177,9 @@ generic.compass.wrapper <- function(path=NULL,
   }
   if (is.null(cnode)) {
     stop("cnode parameter must be provided.")
+  }
+  if (!is.null(lineplotxvar) & is.null(lineplotgroupby)) {
+    stop("Please specify lineplotgroupby parameter, which must be provided if lineplotxvar is provided.")
   }
   
   cat(paste(as.character(Sys.time()), "Loading GatingSetList\n"))
@@ -218,7 +228,8 @@ generic.compass.wrapper <- function(path=NULL,
                        run1=run,
                        outdir1=outdir,
                        uniqueruns1=uniqueruns,
-                       grouping1=grouping)
+                       grouping1=grouping,
+                       lineplotgroupby1=lineplotgroupby)
     }
   }
   cat(paste(as.character(Sys.time()), " All COMPASS runs Done\n"))

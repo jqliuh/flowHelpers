@@ -4,7 +4,7 @@ library(flowWorkspace)
 library(ggplot2)
 library(ggrepel)
 
-# Plot the number of cells that are CD3+ for each sample.
+# Plot the number of cells that are CD3+ (or your specified population) for each sample.
 # Run this function once for each batch to be combined later. Can use to look for batch effects.
 #
 # Required Arguments:
@@ -103,13 +103,17 @@ boxplot.cell.counts <- function(flowJoXmlPath,
     countsBoxplot
   } else {
     pngName <- { if (is.null(stratifyByLevel2)) {
-      paste(c("QCBoxplot_", subpopulation, "_Counts_By_", stratifyByLevel1, "_", c(tools::file_path_sans_ext(basename(flowJoXmlPath)), ".png")), collapse="")
+      paste(c("QC_Boxplot_", subpopulation, "_Counts_By_", stratifyByLevel1, "_", c(tools::file_path_sans_ext(basename(flowJoXmlPath)), ".png")), collapse="")
     } else {
-      paste(c("QCBoxplot_", subpopulation, "_Counts_By_", stratifyByLevel1, "_and_", stratifyByLevel2, "_", c(tools::file_path_sans_ext(basename(flowJoXmlPath)), ".png")), collapse="")
+      paste(c("QC_Boxplot_", subpopulation, "_Counts_By_", stratifyByLevel1, "_and_", stratifyByLevel2, "_", tools::file_path_sans_ext(basename(flowJoXmlPath)), ".png"), collapse="")
     }}
     setwd(outdir)
     png(filename=pngName, width=1500, height=900)
     countsBoxplot
     dev.off()
+    
+    # Write annotatedCounts to file
+    countsFileName <- paste(c("QC_Annotated_Counts_", subpopulation, "_", tools::file_path_sans_ext(basename(flowJoXmlPath)), ".txt"), collapse="")
+    write.table(annotatedCounts, file=countsFileName, sep="\t")
   }
 }

@@ -6,8 +6,8 @@ library(plotly)
 # for a given condition (e.g. Antigen) across another variable (e.g. Time)
 # for the specified boolean subset
 #
+# Required Arguments:
 # path: path to directory holding GatingSetList
-# outdir: saves image in output directory, if given
 # conditioncol: name of the column that defines the main experimental condition, e.g. Antigen
 # exp: experimental value in conditioncol, e.g. ESAT-6
 # ctrl: control value in conditioncol, e.g. DMSO
@@ -15,25 +15,29 @@ library(plotly)
 # parentsubset: unique name of parent node to use for plots
 # boolsubset: the full boolean subset to be used by booleanfilter()
 # xaxis: a marker name to plot on the x-axis
-# yaxis a marker name to plot on the y-axis
+# yaxis: a marker name to plot on the y-axis
+# uniqueSamplesCol: pData column which defines unique samples, e.g. "Time.PTID"
+#
+# Optional Arguments:
+# outdir: optional, saves image in output directory if given
+# ylimits: optional, yaxis limits. numeric vector
+# shortenTitle: optional, a Boolean which specifies whether to shorten the title
+# 
 #
 # Example usage:
 # boxplot.boolean.subset.proportions(path="/home/malisa/GatingSetListAllBatches",
-#                           outdir="/home/malisa/uw/20170320 post-COMPASS exploration plots",
-#                           ptid=12345678,
-#                           conditioncol="Antigen",
-#                           exp="ESAT-6",
-#                           ctrl="DMSO",
-#                           conditioncol2="Time",
-#                           parentsubset="8+",
-#                           boolsubset="8+/TNFa+&!8+/IFNg+&!8+/IL2+&!8+/IL4+",
-#                           individuals="Time.PTID",
-#                           ylimits=c(0, 0.013))
+#                                    conditioncol="Antigen",
+#                                    exp="ESAT-6",
+#                                    ctrl="DMSO",
+#                                    conditioncol2="Time",
+#                                    parentsubset="8+",
+#                                    boolsubset="8+/TNFa+&!8+/IFNg+&!8+/IL2+&!8+/IL4+",
+#                                    ylimits=c(0, 0.013),
+#                                    uniqueSamplesCol="Time.PTID")
 #
 # TODO: check all required parameters exist
 boxplot.boolean.subset.proportions <- function(path,
                                       outdir=NULL,
-                                      ptid,
                                       conditioncol,
                                       exp,
                                       ctrl,
@@ -42,7 +46,7 @@ boxplot.boolean.subset.proportions <- function(path,
                                       boolsubset,
                                       ylimits=NULL,
                                       shortenTitle=FALSE,
-                                      individuals="PTID"
+                                      uniqueSamplesCol
                                       
 ) {
   gs <- load_gslist(path)
@@ -63,10 +67,10 @@ boxplot.boolean.subset.proportions <- function(path,
   # Split the data into 2 tables, one for the control and one for experimental
   countsCtrl <- counts4boxplots[as.vector(counts4boxplots[,get(conditioncol)] == ctrl),]
   countsExp <- counts4boxplots[as.vector(counts4boxplots[,get(conditioncol)] == exp),]
-  # Then merge the data, this time column-wise by merging on individuals
-  countsCtrl4Merge <- cbind(countsCtrl[,get(individuals)], countsCtrl[,"CountAsProportion"])
-  colnames(countsCtrl4Merge)[1] <- individuals
-  counts4boxplotsMerge <- merge(x=countsExp, y=countsCtrl4Merge, by=c(eval(individuals)), suffixes=c("", ".ctrl"))
+  # Then merge the data, this time column-wise by merging on uniqueSamplesCol
+  countsCtrl4Merge <- cbind(countsCtrl[,get(uniqueSamplesCol)], countsCtrl[,"CountAsProportion"])
+  colnames(countsCtrl4Merge)[1] <- uniqueSamplesCol
+  counts4boxplotsMerge <- merge(x=countsExp, y=countsCtrl4Merge, by=c(eval(uniqueSamplesCol)), suffixes=c("", ".ctrl"))
   counts4boxplotsMerge[, "CountAsProportionDiff"] <- counts4boxplotsMerge[, "CountAsProportion"] - counts4boxplotsMerge[, "CountAsProportion.ctrl"]
   counts4boxplotsMerge[, "CountAsProportionDiffPos"] <- sapply(counts4boxplotsMerge[, "CountAsProportionDiff"][[1]], function(x) max(x, 0))
   
@@ -100,7 +104,7 @@ boxplot.boolean.subset.proportions <- function(path,
     possubset4file <- paste(lapply(possubset, function(x) {splt <- strsplit(x, "/")[[1]]; splt[length(splt)][[1]]}), collapse="")
     ggsave(filename=paste(c("Boxplot_", parentsubset, "_", exp, "_", possubset4file, ".png"), collapse=""),
            plot=plot, path=outdir, device="png",
-           width=6, height=5, units="in")
+           width=8.5, height=6, units="in")
   } else {
     plot
   }
