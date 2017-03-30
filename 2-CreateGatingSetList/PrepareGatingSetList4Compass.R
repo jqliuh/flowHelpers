@@ -8,7 +8,7 @@ library(flowWorkspace)
 # Optionally, you can provide a list of saved GatingSet directories. Assumed to already have keywords and samples filtered.
 # The final GatingSetList is saved to a user-provided output directory. You can then use it directly with COMPASS or modify it further.
 #
-# Note 1: All the batches must have the same gating tree, so by default this function will drop un-shared
+# Note 1: All the batches must have the same gating tree, so by default this function will drop unshared
 # nodes and channels from the batches to be merged.
 # Note 2: Marker names must all be the same across the batches. By default, this function will rename markers
 # using the marker names from the first batch, if differences are found between batches.
