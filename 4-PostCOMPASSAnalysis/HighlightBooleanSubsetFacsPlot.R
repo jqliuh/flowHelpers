@@ -68,7 +68,17 @@ highlight.boolean.subset.facs.plot <- function(path,
   colnames(gsSubMetaData)[length(colnames(gsSubMetaData))] <- "row.names"
   boolsubsetPopStatsMerge <- merge(x=boolsubsetPopStats[, c("name", "Population", "Count", "Percent")], y=gsSubMetaData[, c("row.names", conditioncol, conditioncol2)], by.x="name", by.y="row.names")
   facstitle <- paste(c(individualsCol, " ", as.character(individual), ", ", parentsubset, " cells\nResponse to ", exp, " vs ", conditioncol2), collapse="")
-  subtitle1 <- paste(c("Full Boolean Subset:\n", boolsubset), collapse="")
+  
+  # Simplify boolean subset for display
+  subsetsmpl <- strsplit(boolsubset, split="&")[[1]]
+  # What we're selecting positively FOR
+  possubset <- subsetsmpl[grep("!", subsetsmpl, invert=TRUE)]
+  possubsetFmtd <- paste("Pos: ", paste(lapply(possubset, function(x) {x[length(x)][[1]]}), collapse=", "), sep="")
+  # What we're selecting AGAINST
+  negsubset <- subsetsmpl[grep("!", subsetsmpl)]
+  negsubsetFmted <- paste("Neg: ", paste(lapply(negsubset, function(x) {splt <- strsplit(x, "!")[[1]]; splt[length(splt)][[1]]}), collapse=", "), sep="")
+  plottitle <- paste(c("Difference in cell subset proportions between ", exp, " and ", ctrl), collapse="")
+  subtitle1 <- paste(c("Full Boolean Subset: \n       ", possubsetFmtd, "\n       ", negsubsetFmted), collapse="")
   
   facsplot <- ggcyto(gsSub, aes_string(x=xaxis, y=yaxis), subset=parentsubset) + 
     geom_hex(bins = 120) +
@@ -86,7 +96,8 @@ highlight.boolean.subset.facs.plot <- function(path,
     possubset <- subsetsmpl[grep("!", subsetsmpl, invert=TRUE)]
     # Rewrite as one string
     possubset <- paste(lapply(possubset, function(x) {splt <- strsplit(x, "/")[[1]]; splt[length(splt)][[1]]}), collapse="")
-    ggsave(filename=paste(c("FACSplot_", individualsCol, "_", individual, "_", parentsubset, "_", exp, "_", possubset, ".png"), collapse=""), plot=facsplot, path=outdir, device="png")
+    ggsave(filename=paste(c("FACSplot_", individualsCol, "_", individual, "_", parentsubset, "_", exp, "_", possubset, ".png"), collapse=""),
+           plot=facsplot, path=outdir, device="png", width=9, height=8, units="in")
   } else {
     facsplot
   }

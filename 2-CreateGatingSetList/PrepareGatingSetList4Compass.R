@@ -2,19 +2,20 @@
 library(flowWorkspace)
 
 ######################################
-# This function reads multiple FlowJo workspace xml files and their associated FCS files.
+# This function reads in multiple FlowJo workspace xml files and their associated FCS files.
 # It then combines them all into a single GatingSetList, extracting the user-provided keywords
 # and checking that the batches are combine-able along the way.
-# Optionally, you can provide a list of saved GatingSet directories. Assumed to already have keywords and samples filtered.
+# Optionally, you can provide a list of saved GatingSet directories (in addition or instead of the xml files). 
+# They are assumed to already have keywords and samples filtered.
 # The final GatingSetList is saved to a user-provided output directory. You can then use it directly with COMPASS or modify it further.
 #
-# Note 1: All the batches must have the same gating tree, so by default this function will drop unshared
-# nodes and channels from the batches to be merged.
+# Note 1: All the batches need to have the same gating tree, so this function will drop unshared
+# nodes and channels from the batches to be merged. TODO: make option to turn off default
 # Note 2: Marker names must all be the same across the batches. By default, this function will rename markers
-# using the marker names from the first batch, if differences are found between batches.
+# using the marker names from the first batch if differences are found between batches.
 #
 # Required Arguments:
-# xmlFiles OR gsDirs: One or the other must be provided. Both are character vectors.
+# xmlFiles OR gsDirs: One and/or the other must be provided. Both are character vectors.
 # outDir: directory in which to save the final GatingSetList
 #
 # Optional Arguments:
@@ -22,7 +23,7 @@ library(flowWorkspace)
 # sampleGroups: numeric vector. Specify this if the flowJo sample group is not 3 for all batches.
 # keywords2import: character vector. List of keywords to import from FlowJo workspace and into pData.
 # keyword4samples2exclude: keyword used to identify samples for exclusion
-# samples2exclude: character vector. When making GatingSetList, exclude samples whose keyword4samples2exclude value is contained in this vector.
+# samples2exclude: character vector. When making GatingSetList, exclude samples whose keyword4samples2exclude column contains values in this vector.
 #                     Usually a result of poor quality data, discovered during the QC step.
 # newMarkerNames: ordered character vector which will override the marker names in the final GatingSetList
 #

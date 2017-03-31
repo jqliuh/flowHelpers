@@ -53,6 +53,7 @@ boxplot.cell.counts <- function(flowJoXmlPath,
   }
   
   # Read in the workspace
+  cat(paste(c("Opening ", flowJoXmlPath, "\n"), collapse=""))
   ws <- openWorkspace(flowJoXmlPath)
   
   # Read in the sample fcs files as a GatingSet
@@ -107,9 +108,10 @@ boxplot.cell.counts <- function(flowJoXmlPath,
     } else {
       paste(c("QC_Boxplot_", subpopulation, "_Counts_By_", stratifyByLevel1, "_and_", stratifyByLevel2, "_", tools::file_path_sans_ext(basename(flowJoXmlPath)), ".png"), collapse="")
     }}
+    cat(paste(c("Saving png to ", file.path(outdir, pngName), "\n"), collapse=""))
     setwd(outdir)
-    png(filename=pngName, width=1500, height=900)
-    countsBoxplot
+    png(pngName, width=1500, height=900)
+    print(countsBoxplot)
     dev.off()
     
     # Write annotatedCounts to file

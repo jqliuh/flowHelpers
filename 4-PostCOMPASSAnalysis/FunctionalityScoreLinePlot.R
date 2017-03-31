@@ -13,6 +13,8 @@ library(ggplot2)
 # Optional arguments:
 # addBox: A boolean. Adds boxplots for each x-axis value if set to True.
 # ylimits: numeric vector specifying upper and lower y-axis limits
+# outdir: will save plot to a file in this directory, if provided
+# fileSuffix: What to add to end of filename
 #
 #
 # Example usage:
@@ -28,7 +30,14 @@ library(ggplot2)
 # # Draw the line plot
 # fs.line.plot(fsData=fsData1, xaxis="Time", yaxis="FunctionalityScore", groupName="PTID", addBox=TRUE, ylimits=ylims)
 #
-fs.line.plot <- function(fsData, xaxis, yaxis, groupName, addBox=FALSE, ylimits=NULL) {
+fs.line.plot <- function(fsData,
+                         outdir=NULL,
+                         xaxis,
+                         yaxis,
+                         groupName,
+                         addBox=FALSE,
+                         ylimits=NULL,
+                         fileSuffix=NULL) {
   p1 <- ggplot(data=fsData, aes_string(x=xaxis, y=yaxis, group=groupName))
   if (addBox) {
     p1 <- p1 + geom_boxplot(inherit.aes=FALSE, aes_string(x=xaxis, y=yaxis),
@@ -40,5 +49,13 @@ fs.line.plot <- function(fsData, xaxis, yaxis, groupName, addBox=FALSE, ylimits=
          x=xaxis, y=yaxis) +
     theme_set(theme_gray(base_size = 15)) +
     coord_cartesian(ylim=ylimits)
-  p1
+  if (is.null(outdir)) {
+    p1
+  } else {
+    pngName <- file.path(outdir, paste(c("LinePlot_", yaxis, "_v_", xaxis, fileSuffix, ".png"), collapse=""))
+    cat(paste(c("Saving png to ", pngName, "\n"), collapse=""))
+    ggsave(filename=pngName,
+           plot=p1,
+           width=6.66, height=7.85)
+  }
 }

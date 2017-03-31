@@ -18,7 +18,7 @@ run.compass.once <- function(gs1,
                              outdir1,
                              uniqueruns1,
                              grouping1,
-                             lineplotgroupby1,) {
+                             lineplotgroupby1) {
   gsListForCOMPASSsub <- gs1
   cnode <- cnode1
   individuals <- individuals1
@@ -26,10 +26,10 @@ run.compass.once <- function(gs1,
   iter <- iter1
   lineplotxvar <- lineplotxvar1
   run <- run1
-  outdir=outdir1
-  uniqueruns=uniqueruns1
-  grouping=grouping1
-  lineplotgroupby=lineplotgroupby1
+  outdir <- outdir1
+  uniqueruns <- uniqueruns1
+  grouping <- grouping1
+  lineplotgroupby <- lineplotgroupby1
   
   # Create a COMPASSContainer from the GatingSetList.
   CC <- COMPASSContainerFromGatingSet(gsListForCOMPASSsub, node=cnode, individual_id=individuals,
@@ -52,6 +52,9 @@ run.compass.once <- function(gs1,
   dir.create(subDirPath, showWarnings = FALSE)
   setwd(subDirPath)
   
+  # Save the COMPASS run as an RDS file for safekeeping
+  saveRDS(fit, paste(c("COMPASSResult_", fileSuffix, ".rds"), collapse=""))
+  
   # Initialize output text files for FS and PFS
   columnsFormat <- paste("CellSubset", uniqueruns, sep="\t")
   fsFile <- paste(paste("FS", fileSuffix, sep="_"), ".txt", sep="")
@@ -69,18 +72,18 @@ run.compass.once <- function(gs1,
   # in expression for each category
   png(filename=paste(c("HeatmapMeanProbResponse", "_", cnode, run, ".png"), collapse=""),
       width=800, height=650)
-  try(plot(fit, grouping, show_rownames = TRUE,
+  try(print(plot(fit, grouping, show_rownames = TRUE,
            main = paste("Heatmap of Mean Probability of Response", plotTitleSuffix, sep=""),
-           fontsize=14, fontsize_row=13, fontsize_col=11))
+           fontsize=14, fontsize_row=13, fontsize_col=11)))
   dev.off()
   
   # Log scale of previous data, smaller changes show up better
   png(filename=paste(c("HeatmapLogPostResponse", "_", cnode, run, ".png"), collapse=""),
       width=800, height=650)
-  try(plot(fit, grouping, show_rownames = TRUE,
+  try(print(plot(fit, grouping, show_rownames = TRUE,
            measure=PosteriorLogDiff(fit), threshold=0,
            main = paste("Heatmap of Log Posterior Differences in Response", plotTitleSuffix, sep=""),
-           fontsize=14, fontsize_row=13, fontsize_col=11))
+           fontsize=14, fontsize_row=13, fontsize_col=11)))
   dev.off()
   
   # If applicable, create line plot of Functionality Score vs. lineplotxvar
