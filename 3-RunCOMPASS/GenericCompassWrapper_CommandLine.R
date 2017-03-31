@@ -22,7 +22,7 @@ option_list <- list(
   make_option(c("-i", "--individuals"), default=NULL,
               help="REQUIRED pData column containing individual identifiers (rows of heatmap) [default \"%default\"]"),
   make_option(c("-g", "--grouping"), default=NULL,
-              help="pData columns on which to group rows in heatmap, space-separated [default \"%default\"]"),
+              help="pData columns on which to group rows in heatmap, comma-separated [default \"%default\"]"),
   make_option(c("-u", "--uniqueruns"), default=NULL,
               help="pData column identifying unique runs, e.g. Antigen [default \"%default\"]"),
   make_option(c("-l", "--lineplotxvar"), default=NULL,
@@ -54,7 +54,7 @@ if (is.null(opt$individuals)) {
 
 tmpNodeMarkerMap <- as.list(strsplit(opt$mapmarkers, ",|, ")[[1]])
 names(tmpNodeMarkerMap) <- strsplit(opt$mapnodes, ",|, ")[[1]]
-tmpGrouping <- if (is.null(opt$grouping)) { NULL } else { strsplit(opt$grouping, " ")[[1]] }
+tmpGrouping <- if (is.null(opt$grouping)) { NULL } else { strsplit(opt$grouping, ",|, ")[[1]] }
 
 # This function is copied from https://github.com/molgenis/molgenis-pipelines/wiki/How-to-source-another_file.R-from-within-your-R-script
 LocationOfThisScript = function() # Function LocationOfThisScript returns the location of this .R script (may be needed to source other files in same dir)
