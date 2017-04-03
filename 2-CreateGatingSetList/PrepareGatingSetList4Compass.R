@@ -5,8 +5,8 @@ library(flowWorkspace)
 # This function reads in multiple FlowJo workspace xml files and their associated FCS files.
 # It then combines them all into a single GatingSetList, extracting the user-provided keywords
 # and checking that the batches are combine-able along the way.
-# Optionally, you can provide a list of saved GatingSet directories (in addition or instead of the xml files). 
-# They are assumed to already have keywords and samples filtered.
+# Optionally, you can provide a list of saved GatingSet directories (in addition to or instead of the xml files). 
+# These are assumed to already have keywords and samples filtered.
 # The final GatingSetList is saved to a user-provided output directory. You can then use it directly with COMPASS or modify it further.
 #
 # Note 1: All the batches need to have the same gating tree, so this function will drop unshared
@@ -36,16 +36,16 @@ library(flowWorkspace)
 #                                   keywords2import=c("Barcode", "Antigen", "PATIENT ID"),
 #                                   keyword4samples2exclude="Barcode",
 #                                   samples2exclude=c('1234567890', '1234567891', '1234567892', '1234567893', '1234567894'))
-prepare.gating.set.list.4.compass <- function(xmlFiles,
+prepare.gating.set.list.4.compass <- function(xmlFiles=NULL,
                                               fcsFiles=NULL,
                                               gsDirs=NULL,
-                                              outDir,
+                                              outDir=NULL,
                                               sampleGroups=NULL,
                                               keywords2import=c(),
                                               keyword4samples2exclude=NULL,
                                               samples2exclude=NULL,
                                               newMarkerNames=NULL) {
-  if(is.null(xmlFiles) & is.null(gsDirs)) {stop("Either xmlFiles or gsDirs must be provided")}
+  if(is.null(xmlFiles) & is.null(gsDirs)) {stop("One or more of xmlFiles or gsDirs must be provided")}
   if(is.null(outDir)) {stop("outDir must be provided")}
   if(length(list.files(outDir)) > 0) {
     stop("Please empty or delete outDir")
@@ -126,8 +126,11 @@ prepare.gating.set.list.4.compass <- function(xmlFiles,
   paste(c(as.character(Sys.time()), " Overwriting outDir: ", outDir, "\n"), collapse="")
   unlink(outDir, recursive=TRUE)
   save_gslist(gsList4COMPASS, path=outDir)
-  # Close all the workspaces
-  for (i in 1:length(wsList)) {
-    closeWorkspace(wsList[[i]])
+  # Close all the workspaces, if applicable
+  if (length(wsList) > 0) {
+    for (i in 1:length(wsList)) {
+      closeWorkspace(wsList[[i]])
+    }
   }
+
 }
