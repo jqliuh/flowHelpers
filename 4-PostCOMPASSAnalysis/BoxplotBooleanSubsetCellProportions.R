@@ -86,7 +86,7 @@ boxplot.boolean.subset.proportions <- function(path,
   subtitle1 <- paste(c("Full Boolean Subset: \n       ", possubsetFmtd, "\n       ", negsubsetFmted), collapse="")
   if (shortenTitle) {
     plottitle <- exp
-    subtitle1 <- NULL
+    subtitle1 <- paste(c("Boolean Subset:\n", possubsetFmtd, " Neg: all other markers"), collapse="")
   }
   
   # Finally, plot!

@@ -135,7 +135,7 @@ run.compass.once <- function(gs1,
 # Number to set seed to [default NULL]
 # 
 # grouping
-# pData columns on which to group rows in heatmap, space-separated [default NULL]
+# pData columns on which to group rows in heatmap, as a character vector [default NULL]
 # 
 # uniqueruns
 # pData column identifying unique runs. Use if you need multiple runs. [default NULL]
@@ -198,7 +198,7 @@ generic.compass.wrapper <- function(path=NULL,
   # Run COMPASS once or multiple times depending on whether uniqueruns is given
   if (is.null(uniqueruns)) {
     cat(paste(c(as.character(Sys.time()), " Running COMPASS for", cnode, "cells", "...\n"), collapse=" "))
-    run.compass.once(gs1=gsListForCOMPASS,
+    try(run.compass.once(gs1=gsListForCOMPASS,
                      cnode1=cnode,
                      individuals1=individuals,
                      nodemarkermap1=nodemarkermap,
@@ -207,7 +207,7 @@ generic.compass.wrapper <- function(path=NULL,
                      run1=NULL,
                      outdir1=outdir,
                      uniqueruns1=NULL,
-                     grouping1=grouping)
+                     grouping1=grouping))
   } else {
     # Get a list of values identifying unique runs from the "uniqueruns" column, minus the control value
     uniqueRunsList <- unique(meta[meta[,"trt"]!="Control",][,uniqueruns])
@@ -222,7 +222,7 @@ generic.compass.wrapper <- function(path=NULL,
       rownamesAsChar <- as.character(rownames(meta[rowSubsetBooleans,]))
       gsListForCOMPASSsub <- gsListForCOMPASS[rownamesAsChar]
       
-      run.compass.once(gs1=gsListForCOMPASSsub,
+      try(run.compass.once(gs1=gsListForCOMPASSsub,
                        cnode1=cnode,
                        individuals1=individuals,
                        nodemarkermap1=nodemarkermap,
@@ -232,7 +232,7 @@ generic.compass.wrapper <- function(path=NULL,
                        outdir1=outdir,
                        uniqueruns1=uniqueruns,
                        grouping1=grouping,
-                       lineplotgroupby1=lineplotgroupby)
+                       lineplotgroupby1=lineplotgroupby))
     }
   }
   cat(paste(as.character(Sys.time()), " All COMPASS runs Done\n"))
