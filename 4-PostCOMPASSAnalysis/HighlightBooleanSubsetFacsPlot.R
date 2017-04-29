@@ -20,6 +20,7 @@ library(plotly)
 #
 # Optional Argument:
 # outdir: saves image in output directory, if given
+# facetorder: the levels of conditioncol (e.g. Antigen) in the order you want displayed
 #
 # Example usage:
 # highlight.boolean.subset.facs.plot(path="/home/malisa/GatingSetListAllBatches",
@@ -32,7 +33,8 @@ library(plotly)
 #                                    parentsubset="8+",
 #                                    boolsubset="8+/TNFa+&!8+/IFNg+&!8+/IL2+&!8+/IL4+",
 #                                    xaxis="TNFa",
-#                                    yaxis="IFNg")
+#                                    yaxis="IFNg",
+#                                    facetorder=c("DMSO", "ESAT-6"))
 #
 # TODO: check all required parameters exist
 highlight.boolean.subset.facs.plot <- function(path,
@@ -46,7 +48,8 @@ highlight.boolean.subset.facs.plot <- function(path,
                                                parentsubset,
                                                boolsubset,
                                                xaxis,
-                                               yaxis
+                                               yaxis,
+                                               facetorder=NULL
                                                
 ) {
   gs <- load_gslist(path)
@@ -79,6 +82,13 @@ highlight.boolean.subset.facs.plot <- function(path,
   negsubsetFmted <- paste("Neg: ", paste(lapply(negsubset, function(x) {splt <- strsplit(x, "!")[[1]]; splt[length(splt)][[1]]}), collapse=", "), sep="")
   plottitle <- paste(c("Difference in cell subset proportions between ", exp, " and ", ctrl), collapse="")
   subtitle1 <- paste(c("Full Boolean Subset: \n       ", possubsetFmtd, "\n       ", negsubsetFmted), collapse="")
+  
+  if (!is.null(facetorder)) {
+    pData(gsSub)[,conditioncol] <- factor(pData(gsSub)[,conditioncol], levels=facetorder)
+    pData(gsSub)[,conditioncol2] <- factor(pData(gsSub)[,conditioncol2])
+    boolsubsetPopStatsMerge <- as.data.frame(boolsubsetPopStatsMerge)
+    boolsubsetPopStatsMerge[,conditioncol] <- factor(boolsubsetPopStatsMerge[,conditioncol], levels=facetorder)
+  }
   
   facsplot <- ggcyto(gsSub, aes_string(x=xaxis, y=yaxis), subset=parentsubset) + 
     geom_hex(bins = 120) +
