@@ -1,0 +1,17 @@
+Package: COMPASSHelpers
+Title: Collection of scripts for running COMPASS
+Version: 0.0.0.9000
+Authors@R: person("Malisa", "Smith", email = "malisa.tsmith@gmail.com", role = c("aut", "cre"))
+Description: Collection of scripts for running COMPASS https://github.com/RGLab/COMPASS
+Depends: R (>= 3.4.0)
+License: Artistic-2.0
+Encoding: UTF-8
+LazyData: true
+Imports:
+    COMPASS (>= 1.14.0),
+    data.table (>= 1.10.4),
+    flowWorkspace (>= 3.20.5),
+    ggcyto (>= 1.3.8),
+    ggplot2 (>= 2.2.1),
+    pryr (>= 0.1.2)
+RoxygenNote: 6.0.1.9000

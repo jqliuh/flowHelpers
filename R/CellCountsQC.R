@@ -1,31 +1,33 @@
 ### CellCountsQC.R ###########################################
-library(data.table)
-library(flowWorkspace)
-library(ggplot2)
-library(ggrepel)
 
-# Plot the number of cells that are CD3+ (or your specified population) for each sample.
-# Run this function once for each batch to be combined later. Can use to look for batch effects.
-#
-# Required Arguments:
-#
-# flowJoXmlPath or gatingSetPath: Required full path to FlowJo Xml file for import, or path to saved GatingSet
-# stratifyByLevel1: Required keyword on which to stratify boxplot data (usually "PATIENT ID")
-#
-# Optional Arguments:
-#
-# fcsPath: Optional directory where FCS files reside, if not in the same directory as flowJoXmlPath
-# keywords2import: Optional keywords to import from flowJo into GatingSet metadata, required for flowJoXmlPath
-# outdir: Optional directory to save boxplot in. If not given, returns the boxplot instead.
-# sampleGroup: Specify this if you are providing a flowJoXmlPath and the flowJo sample group is not 3
-# subpopulation: Optional node name to use for counts, if not 3+
-# stratifyByLevel2: Optional additional keyword on which to stratify boxplot data
-#
-# Example usage:
-# boxplot.cell.counts(flowJoXmlPath="/home/malisa/Batch1Directory/Batch1FlowJo.xml",
-#                     keywords2import=c("PATIENT ID", "Barcode"),
-#                     stratifyByLevel1="PATIENT ID",
-#                     stratifyByLevel2="Barcode")
+#' Plot cell counts for each sample (default CD3+ cells)
+#'
+#' Plot the number of cells that are CD3+ (or your specified population) for each sample.
+#' Run this function once for each batch to be combined later. Can use to look for batch effects.
+#'
+#' @param flowJoXmlPath full path to FlowJo Xml file for import (flowJoXmlPath or gatingSetPath is required)
+#' @param gatingSetPath path to saved GatingSet directory for import (flowJoXmlPath or gatingSetPath is required)
+#' @param stratifyByLevel1 Required keyword on which to stratify boxplot data (usually "PATIENT ID")
+#' @param fcsPath (Optional) directory where FCS files reside, if not in the same directory as flowJoXmlPath
+#' @param keywords2import (Optional) keywords to import from flowJo into GatingSet metadata, required for flowJoXmlPath
+#' @param outdir (Optional) directory to save boxplot in. If not given, returns the boxplot instead.
+#' @param sampleGroup (Optional) Specify this if you are providing a flowJoXmlPath and the flowJo sample group is not 3
+#' @param subpopulation (Optional) node name to use for counts, if not 3+
+#' @param stratifyByLevel2 (Optional) additional keyword on which to stratify boxplot data
+#' @return Boxplot of cell counts stratified by stratifyByLevel1, unless outdir is specified.
+#' @export boxplot.cell.counts
+#' @keywords QC counts
+#' @usage boxplot.cell.counts <- function(flowJoXmlPath=NULL, gatingSetPath=NULL,
+#'                     fcsPath=if (!.isnull(flowJoXmlPath)) { dirname(flowJoXmlPath) },
+#'                     outdir=NULL, sampleGroup=3, subpopulation="3+",
+#'                     keywords2import=NULL, stratifyByLevel1, stratifyByLevel2=NULL)
+#' @examples
+#' \dontrun{
+#' boxplot.cell.counts(flowJoXmlPath="/home/Batch1Directory/Batch1FlowJo.xml",
+#'                     keywords2import=c("PATIENT ID", "Barcode"),
+#'                     stratifyByLevel1="PATIENT ID",
+#'                     stratifyByLevel2="Barcode")
+#'                     }
 boxplot.cell.counts <- function(flowJoXmlPath=NULL,
                                 gatingSetPath=NULL,
                                 fcsPath=if (!.isnull(flowJoXmlPath)) { dirname(flowJoXmlPath) },
@@ -35,7 +37,7 @@ boxplot.cell.counts <- function(flowJoXmlPath=NULL,
                                 keywords2import=NULL,
                                 stratifyByLevel1,
                                 stratifyByLevel2=NULL
-                                ) {
+) {
   # Check that required arguments are provided
   if (is.null(flowJoXmlPath) & is.null(gatingSetPath)) {
     stop("flowJoXmlPath or gatingSetPath parameter must be provided.")
@@ -56,13 +58,13 @@ boxplot.cell.counts <- function(flowJoXmlPath=NULL,
   if (is.null(stratifyByLevel1)) {
     stop("stratifyByLevel1 parameter must be provided.")
   }
-  
+
   gs <- NULL
   if (!is.null(flowJoXmlPath)) {
     # Read in the workspace
     cat(paste(c("Opening ", flowJoXmlPath, "\n"), collapse=""))
     ws <- openWorkspace(flowJoXmlPath)
-    
+
     # Read in the sample fcs files as a GatingSet
     # The keywords option, a character vector, specifies the keywords to be extracted as pData of GatingSet
     gs <- parseWorkspace(ws, name=sampleGroup, path=fcsPath, keywords=keywords2import)
@@ -77,14 +79,14 @@ boxplot.cell.counts <- function(flowJoXmlPath=NULL,
   # Obtain the subpopulation cell counts
   # Counts indicate flowCore recomputed counts, not FlowJo amounts
   popStats <- getPopStats(gs, subpopulations = subpopulation)
-  
+
   # Merge the pData and popStats data tables together.
   annotatedCounts <- merge(pData(gs), popStats, by="name")
-  
+
   if (!is.null(flowJoXmlPath)) {
     closeWorkspace(ws)
   }
-  
+
   batchName <- if (!is.null(flowJoXmlPath)) { tools::file_path_sans_ext(basename(flowJoXmlPath)) } else { tools::file_path_sans_ext(basename(gatingSetPath)) }
   countsBoxplot <- {
     if (is.null(stratifyByLevel2)) {
@@ -114,7 +116,7 @@ boxplot.cell.counts <- function(flowJoXmlPath=NULL,
       plotCounts
     }
   }
-  
+
   if (is.null(outdir)) {
     countsBoxplot
   } else {
@@ -129,7 +131,7 @@ boxplot.cell.counts <- function(flowJoXmlPath=NULL,
     png(pngName, width=1500, height=900)
     print(countsBoxplot)
     dev.off()
-    
+
     # Write annotatedCounts to file
     countsFileName <- paste(c("QC_Annotated_Counts_", subpopulationFmtd, "_", batchName, ".txt"), collapse="")
     write.table(annotatedCounts, file=countsFileName, sep="\t")

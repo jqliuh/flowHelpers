@@ -1,7 +1,20 @@
-# COMPASS workflow
-Collection of scripts for running COMPASS https://github.com/RGLab/COMPASS
+# COMPASS Helpers
+Collection of functions for running COMPASS https://github.com/RGLab/COMPASS
 
-The folders are numbered in the order to use them.
+Recommended workflow is:
+Step 1) Perform cell count QC using `boxplot.cell.counts()`
+Step 2) Merge all the FlowJo batches/`GatingSet`s together using `prepare.gating.set.list.4.compass()`
+Step 3) Run COMPASS using `generic.compass.wrapper()`
+Step 4) Visualize the resulting data of interest using `boxplot.boolean.subset.proportions()`, `highlight.boolean.subset.facs.plot()`, and `fs.line.plot()`
+
+(coming soon) See the ExampleRunThrough folder for a complete run-through example.
+
+# Installation:
+
+```
+library(devtools)
+install_github("seshadrilab/COMPASSHelpers")
+```
 
 # Dependencies
 
@@ -13,15 +26,13 @@ data.table
 flowWorkspace
 ggcyto
 ggplot2
-ggrepel
-optparse
-plotly
 pryr
 ```
 
-Please use latest versions of flowWorkspace (>= 3.20.5), and ggcyto (>= 1.3.8).  
+Please use the latest versions of flowWorkspace (>= 3.20.5), and ggcyto (>= 1.3.8).  
 You can type, in R: 
 ```r
-install_github("RGLab/flowWorkspace")
-install_github("RGLab/ggcyto")
+library(devtools)
+install_github("RGLab/flowWorkspace", ref="trunk")
+install_github("RGLab/ggcyto", ref="trunk")
 ```

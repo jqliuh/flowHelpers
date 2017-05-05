@@ -1,54 +1,55 @@
-library(flowWorkspace)
-library(ggcyto)
-library(plotly)
-
-# This function creates a boxplot of the difference in cell proportions
-# for a given condition (e.g. Antigen) across another variable (e.g. Time)
-# for the specified boolean subset
-#
-# Required Arguments:
-# path: path to directory holding GatingSetList
-# conditioncol: name of the column that defines the main experimental condition, e.g. Antigen
-# exp: experimental value in conditioncol, e.g. ESAT-6
-# ctrl: control value in conditioncol, e.g. DMSO
-# conditioncol2: condition on which to stratify box plots
-# parentsubset: unique name of parent node to use for plots
-# boolsubset: the full boolean subset to be used by booleanfilter()
-# xaxis: a marker name to plot on the x-axis
-# yaxis: a marker name to plot on the y-axis
-# uniqueSamplesCol: pData column which defines unique samples, e.g. "Time.PTID"
-#
-# Optional Arguments:
-# outdir: optional, saves image in output directory if given
-# ylimits: optional, yaxis limits. numeric vector
-# shortenTitle: optional, a Boolean which specifies whether to shorten the title
-# 
-#
-# Example usage:
-# boxplot.boolean.subset.proportions(path="/home/malisa/GatingSetListAllBatches",
-#                                    conditioncol="Antigen",
-#                                    exp="ESAT-6",
-#                                    ctrl="DMSO",
-#                                    conditioncol2="Time",
-#                                    parentsubset="8+",
-#                                    boolsubset="8+/TNFa+&!8+/IFNg+&!8+/IL2+&!8+/IL4+",
-#                                    ylimits=c(0, 0.013),
-#                                    uniqueSamplesCol="Time.PTID")
-#
-# TODO: check all required parameters exist
+#' Boxplot of the difference in cell proportions for a given condition
+#'
+#' This function creates a boxplot of the difference in cell proportions
+#' for a given condition (e.g. Antigen) across another variable (e.g. Time)
+#' for the specified boolean subset
+#'
+#' @param path: path to directory holding GatingSetList
+#' @param conditioncol: name of the column that defines the main experimental condition, e.g. Antigen
+#' @param exp: experimental value in conditioncol, e.g. ESAT-6
+#' @param ctrl: control value in conditioncol, e.g. DMSO
+#' @param conditioncol2: condition on which to stratify box plots
+#' @param parentsubset: unique name of parent node to use for plots
+#' @param boolsubset: the full boolean subset to be used by booleanfilter()
+#' @param xaxis: a marker name to plot on the x-axis
+#' @param yaxis: a marker name to plot on the y-axis
+#' @param uniqueSamplesCol: pData column which defines unique samples, e.g. "Time.PTID"
+#' @param outdir (Optional), saves image in output directory if given
+#' @param ylimits (Optional), yaxis limits. numeric vector
+#' @param shortenTitle (Optional), a Boolean which specifies whether to shorten the title
+#' @return Boxplot of the difference in cell proportions, unless outdir is given
+#' @export boxplot.boolean.subset.proportions
+#' @usage boxplot(path, outdir = NULL,
+#'        conditioncol, exp, ctrl, conditioncol2 = ".", parentsubset, boolsubset,
+#'        ylimits = NULL, shortenTitle = FALSE, uniqueSamplesCol)
+#' @keywords boxplot count boolean subset
+#' @examples
+#' \dontrun{
+#' boxplot.boolean.subset.proportions(path="/home/GatingSetListAllBatches",
+#'                                    conditioncol="Antigen",
+#'                                    exp="ESAT-6",
+#'                                    ctrl="DMSO",
+#'                                    conditioncol2="Time",
+#'                                    parentsubset="8+",
+#'                                    boolsubset="8+/TNFa+&!8+/IFNg+&!8+/IL2+&!8+/IL4+",
+#'                                    ylimits=c(0, 0.013),
+#'                                    uniqueSamplesCol="Time.PTID")
+#'                                    }
 boxplot.boolean.subset.proportions <- function(path,
-                                      outdir=NULL,
-                                      conditioncol,
-                                      exp,
-                                      ctrl,
-                                      conditioncol2=".",
-                                      parentsubset,
-                                      boolsubset,
-                                      ylimits=NULL,
-                                      shortenTitle=FALSE,
-                                      uniqueSamplesCol
-                                      
+                                               outdir=NULL,
+                                               conditioncol,
+                                               exp,
+                                               ctrl,
+                                               conditioncol2=".",
+                                               parentsubset,
+                                               boolsubset,
+                                               ylimits=NULL,
+                                               shortenTitle=FALSE,
+                                               uniqueSamplesCol
+
 ) {
+  # TODO: check all required parameters exist
+
   gs <- load_gslist(path)
   # Add a node with boolsubset-only cells
   call <- substitute(booleanFilter(v), list(v = as.symbol(boolsubset)))
@@ -73,7 +74,7 @@ boxplot.boolean.subset.proportions <- function(path,
   counts4boxplotsMerge <- merge(x=countsExp, y=countsCtrl4Merge, by=c(eval(uniqueSamplesCol)), suffixes=c("", ".ctrl"))
   counts4boxplotsMerge[, "CountAsProportionDiff"] <- counts4boxplotsMerge[, "CountAsProportion"] - counts4boxplotsMerge[, "CountAsProportion.ctrl"]
   counts4boxplotsMerge[, "CountAsProportionDiffPos"] <- sapply(counts4boxplotsMerge[, "CountAsProportionDiff"][[1]], function(x) max(x, 0))
-  
+
   # Simplify boolean subset for display
   subsetsmpl <- strsplit(boolsubset, split="&")[[1]]
   # What we're selecting positively FOR
@@ -88,7 +89,7 @@ boxplot.boolean.subset.proportions <- function(path,
     plottitle <- exp
     subtitle1 <- paste(c("Boolean Subset:\n", possubsetFmtd, " Neg: all other markers"), collapse="")
   }
-  
+
   # Finally, plot!
   plot <- ggplot(counts4boxplotsMerge, aes(factor(get(conditioncol2)), CountAsProportionDiffPos)) +
     geom_boxplot() +
@@ -97,7 +98,7 @@ boxplot.boolean.subset.proportions <- function(path,
     labs(x=conditioncol2, y="max(Ps-Pu, 0)",
          title=plottitle, subtitle=subtitle1) +
     coord_cartesian(ylim=ylimits) # adjust visible data for y axis but keep points
-  
+
   if (!is.null(outdir)) {
     # Save plot to disk
     # Rewrite possubset as one string
