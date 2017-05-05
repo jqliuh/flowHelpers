@@ -2,10 +2,10 @@
 Collection of functions for running COMPASS https://github.com/RGLab/COMPASS
 
 Recommended workflow is:
-Step 1) Perform cell count QC using `boxplot.cell.counts()`
-Step 2) Merge all the FlowJo batches/`GatingSet`s together using `prepare.gating.set.list.4.compass()`
-Step 3) Run COMPASS using `generic.compass.wrapper()`
-Step 4) Visualize the resulting data of interest using `boxplot.boolean.subset.proportions()`, `highlight.boolean.subset.facs.plot()`, and `fs.line.plot()`
+1. Perform cell count QC using `boxplot.cell.counts()`
+2. Merge all the FlowJo batches/`GatingSet`s together using `prepare.gating.set.list.4.compass()`
+3. Run COMPASS using `generic.compass.wrapper()`
+4. Visualize the resulting data of interest using `boxplot.boolean.subset.proportions()`, `highlight.boolean.subset.facs.plot()`, and `fs.line.plot()`
 
 (coming soon) See the ExampleRunThrough folder for a complete run-through example.
 
