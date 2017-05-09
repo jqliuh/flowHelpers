@@ -92,27 +92,27 @@ boxplot.cell.counts <- function(flowJoXmlPath=NULL,
     if (is.null(stratifyByLevel2)) {
       plotTitle <- paste(c(subpopulation, " flowCore Counts for\n", batchName,
                            "\nGrouped by ", stratifyByLevel1), collapse="")
-      plotCounts <- ggplot(annotatedCounts, aes(x=factor(get(stratifyByLevel1)), y=Count)) +
-        geom_boxplot() +
-        stat_summary(fun.y=mean, geom="point", shape=8, size=4) +
-        geom_point(shape=16) +
-        labs(title=plotTitle) + xlab(stratifyByLevel1) +
-        geom_hline(yintercept=25000) +
-        theme(plot.title=element_text(hjust=0.5, size=30), axis.text=element_text(size=16),
-              axis.title=element_text(size=22,face="bold"), legend.position="none", strip.text.x = element_text(size = 15))# +
+      plotCounts <- ggplot2::ggplot(annotatedCounts, ggplot2::aes(x=factor(get(stratifyByLevel1)), y=Count)) +
+        ggplot2::geom_boxplot() +
+        ggplot2::stat_summary(fun.y=mean, geom="point", shape=8, size=4) +
+        ggplot2::geom_point(shape=16) +
+        ggplot2::labs(title=plotTitle) + ggplot2::xlab(stratifyByLevel1) +
+        ggplot2::geom_hline(yintercept=25000) +
+        ggplot2::theme(plot.title=ggplot2::element_text(hjust=0.5, size=30), axis.text=ggplot2::element_text(size=16),
+              axis.title=ggplot2::element_text(size=22,face="bold"), legend.position="none", strip.text.x = ggplot2::element_text(size = 15))# +
       plotCounts
     } else {
       plotTitle <- paste(c(subpopulation, " flowCore Counts for\n", batchName,
                            "\nGrouped by ", stratifyByLevel1, " and ", stratifyByLevel2), collapse="")
-      plotCounts <- ggplot(annotatedCounts, aes(x=factor(get(stratifyByLevel2)), y=Count)) +
-        geom_boxplot() +
-        stat_summary(fun.y=mean, geom="point", shape=8, size=4) +
-        geom_point(shape=16) +
-        labs(title=plotTitle) +  + xlab(stratifyByLevel1) +
-        geom_hline(yintercept=25000) +
-        theme(plot.title=element_text(hjust=0.5, size=30), axis.text=element_text(size=16),
-              axis.title=element_text(size=22,face="bold"), legend.position="none", strip.text.x = element_text(size = 15)) +
-        facet_grid(as.formula(paste(c("~ ", "`", stratifyByLevel1, "`"), collapse="")), scales="free_x")
+      plotCounts <- ggplot2::ggplot(annotatedCounts, ggplot2::aes(x=factor(get(stratifyByLevel2)), y=Count)) +
+        ggplot2::geom_boxplot() +
+        ggplot2::stat_summary(fun.y=mean, geom="point", shape=8, size=4) +
+        ggplot2::geom_point(shape=16) +
+        ggplot2::labs(title=plotTitle) + ggplot2::xlab(stratifyByLevel1) +
+        ggplot2::geom_hline(yintercept=25000) +
+        ggplot2::theme(plot.title=ggplot2::element_text(hjust=0.5, size=30), axis.text=ggplot2::element_text(size=16),
+              axis.title=ggplot2::element_text(size=22,face="bold"), legend.position="none", strip.text.x = ggplot2::element_text(size = 15)) +
+        ggplot2::facet_grid(as.formula(paste(c("~ ", "`", stratifyByLevel1, "`"), collapse="")), scales="free_x")
       plotCounts
     }
   }

@@ -4,42 +4,30 @@
 # This function runs COMPASS once, saving output to disk.
 # Intended for use by the generic.compass.wrapper function below.
 ####################################################################
-run.compass.once <- function(gs1,
-                             cnode1,
-                             individuals1,
-                             nodemarkermap1,
-                             iter1,
-                             lineplotxvar1,
-                             run1=NULL,
-                             outdir1,
-                             uniqueruns1,
-                             grouping1,
-                             lineplotgroupby1) {
-  gsListForCOMPASSsub <- gs1
-  cnode <- cnode1
-  individuals <- individuals1
-  nodemarkermap <- nodemarkermap1
-  iter <- iter1
-  lineplotxvar <- lineplotxvar1
-  run <- run1
-  outdir <- outdir1
-  uniqueruns <- uniqueruns1
-  grouping <- grouping1
-  lineplotgroupby <- lineplotgroupby1
-
+run.compass.once <- function(gs,
+                             cnode,
+                             individuals,
+                             nodemarkermap,
+                             iter,
+                             lineplotxvar,
+                             run=NULL,
+                             outdir,
+                             uniqueruns,
+                             grouping,
+                             lineplotgroupby) {
   # Create a COMPASSContainer from the GatingSetList.
-  CC <- COMPASSContainerFromGatingSet(gsListForCOMPASSsub, node=cnode, individual_id=individuals,
+  CC <- COMPASS::COMPASSContainerFromGatingSet(gs, node=cnode, individual_id=individuals,
                                       mp=nodemarkermap)
 
   # Run COMPASS for this unique run
-  fit <- COMPASS( CC,
+  fit <- COMPASS::COMPASS( CC,
                   treatment=trt == "Treatment",
                   control=trt == "Control",
                   iterations=iter
   )
 
-  FS <- FunctionalityScore(fit)
-  PFS <- PolyfunctionalityScore(fit)
+  FS <- COMPASS::FunctionalityScore(fit)
+  PFS <- COMPASS::PolyfunctionalityScore(fit)
 
   # Initialize subdirectory to save output for this run
   fileSuffix <- if (is.null(run)) { cnode } else { paste(cnode, run, sep="_") }
@@ -77,7 +65,7 @@ run.compass.once <- function(gs1,
   png(filename=paste(c("HeatmapLogPostResponse", "_", cnode, run, ".png"), collapse=""),
       width=800, height=650)
   try(print(plot(fit, grouping, show_rownames = TRUE,
-                 measure=PosteriorLogDiff(fit), threshold=0,
+                 measure=COMPASS::PosteriorLogDiff(fit), threshold=0,
                  main = paste("Heatmap of Log Posterior Differences in Response", plotTitleSuffix, sep=""),
                  fontsize=14, fontsize_row=13, fontsize_col=11)))
   dev.off()
@@ -91,12 +79,12 @@ run.compass.once <- function(gs1,
     metasub <- pData(gsListForCOMPASSsub)
     fsplotdf <- merge(x=metasub[metasub[,uniqueruns]==run,], y=FSdf, by.x=individuals, by.y=individuals)
     # Draw the line plot
-    lineplot <- ggplot(data=fsplotdf, aes(x=factor(get(lineplotxvar)), y=FunctionalityScore, group=factor(get(lineplotgroupby)))) +
-      geom_point() + geom_line() +
-      labs(title=paste(c("Functionality Score vs. ", lineplotxvar, " Line Plot,\n", cnode, " ", run), collapse=""),
+    lineplot <- ggplot2::ggplot(data=fsplotdf, aes(x=factor(get(lineplotxvar)), y=FunctionalityScore, group=factor(get(lineplotgroupby)))) +
+      ggplot2::geom_point() + ggplot2::geom_line() +
+      ggplot2::labs(title=paste(c("Functionality Score vs. ", lineplotxvar, " Line Plot,\n", cnode, " ", run), collapse=""),
            x=lineplotxvar) +
-      theme_set(theme_gray(base_size = 25))
-    ggsave(filename=paste(c("LinePlot_FSv", lineplotxvar, "_", cnode, run, ".png"), collapse=""),
+      ggplot2::theme_set(theme_gray(base_size = 25))
+    ggplot2::ggsave(filename=paste(c("LinePlot_FSv", lineplotxvar, "_", cnode, run, ".png"), collapse=""),
            plot=lineplot,
            width=6.66, height=7.85)
   })
@@ -181,22 +169,22 @@ generic.compass.wrapper <- function(path=NULL,
   }
 
   # Load the saved GatingSetList:
-  gsListForCOMPASS <- load_gslist(path)
-  meta <- pData(gsListForCOMPASS)
+  gsListForCOMPASS <- flowWorkspace::load_gslist(path)
+  meta <- flowWorkspace::pData(gsListForCOMPASS)
 
   # Run COMPASS once or multiple times depending on whether uniqueruns is given
   if (is.null(uniqueruns)) {
     cat(paste(c(as.character(Sys.time()), " Running COMPASS for", cnode, "cells", "...\n"), collapse=" "))
-    try(run.compass.once(gs1=gsListForCOMPASS,
-                         cnode1=cnode,
-                         individuals1=individuals,
-                         nodemarkermap1=nodemarkermap,
-                         iter1=iter,
-                         lineplotxvar1=lineplotxvar,
-                         run1=NULL,
-                         outdir1=outdir,
-                         uniqueruns1=NULL,
-                         grouping1=grouping))
+    try(run.compass.once(gs=gsListForCOMPASS,
+                         cnode=cnode,
+                         individuals=individuals,
+                         nodemarkermap=nodemarkermap,
+                         iter=iter,
+                         lineplotxvar=lineplotxvar,
+                         run=NULL,
+                         outdir=outdir,
+                         uniqueruns=NULL,
+                         grouping=grouping))
   } else {
     # Get a list of values identifying unique runs from the "uniqueruns" column, minus the control value
     uniqueRunsList <- unique(meta[meta[,"trt"]!="Control",][,uniqueruns])
@@ -211,17 +199,17 @@ generic.compass.wrapper <- function(path=NULL,
       rownamesAsChar <- as.character(rownames(meta[rowSubsetBooleans,]))
       gsListForCOMPASSsub <- gsListForCOMPASS[rownamesAsChar]
 
-      try(run.compass.once(gs1=gsListForCOMPASSsub,
-                           cnode1=cnode,
-                           individuals1=individuals,
-                           nodemarkermap1=nodemarkermap,
-                           iter1=iter,
-                           lineplotxvar1=lineplotxvar,
-                           run1=run,
-                           outdir1=outdir,
-                           uniqueruns1=uniqueruns,
-                           grouping1=grouping,
-                           lineplotgroupby1=lineplotgroupby))
+      try(run.compass.once(gs=gsListForCOMPASSsub,
+                           cnode=cnode,
+                           individuals=individuals,
+                           nodemarkermap=nodemarkermap,
+                           iter=iter,
+                           lineplotxvar=lineplotxvar,
+                           run=run,
+                           outdir=outdir,
+                           uniqueruns=uniqueruns,
+                           grouping=grouping,
+                           lineplotgroupby=lineplotgroupby))
     }
   }
   cat(paste(as.character(Sys.time()), " All COMPASS runs Done\n"))

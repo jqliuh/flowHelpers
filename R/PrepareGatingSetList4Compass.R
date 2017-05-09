@@ -68,9 +68,9 @@ prepare.gating.set.list.4.compass <- function(xmlFiles=NULL,
   gsListLen <- length(gsList)
   if (!is.null(xmlFiles)) {
     for (i in 1:length(xmlFiles)) {
-      wsList[[i]] <- openWorkspace(xmlFiles[i])
+      wsList[[i]] <- flowWorkspace::openWorkspace(xmlFiles[i])
       if (!is.null(fcsFiles)) {
-        gsList[[gsListLen + i]] <- parseWorkspace(wsList[[i]], name=sampleGroups[i], path=fcsFiles[i],
+        gsList[[gsListLen + i]] <- flowWorkspace::parseWorkspace(wsList[[i]], name=sampleGroups[i], path=fcsFiles[i],
                                                   keywords=unique(append(keywords2import, keyword4samples2exclude)))
         if (!is.null(keyword4samples2exclude) & !is.null(samples2exclude)) {
           gsList[[gsListLen + i]] <- subset.GatingSet(gsList[[gsListLen + i]], !(factor(get(keyword4samples2exclude)) %in% samples2exclude))
@@ -87,21 +87,21 @@ prepare.gating.set.list.4.compass <- function(xmlFiles=NULL,
 
   # Now all the GatingSets are in gsList.
   # Next drop redundant nodes and channels in the GatingSets to help make them merge-able.
-  gsGroups <- groupByTree(gsList)
-  nodes2Remove <- checkRedundantNodes(gsGroups)
+  gsGroups <- flowWorkspace::groupByTree(gsList)
+  nodes2Remove <- flowWorkspace::checkRedundantNodes(gsGroups)
   if (!(length(nodes2Remove) == 1 & length(nodes2Remove[[1]]) == 0)) {
     paste(as.character(Sys.time()), "WARNING: Removing nodes:\n")
     paste(nodes2Remove)
     paste("\n")
   }
-  dropRedundantNodes(gsGroups, nodes2Remove) # original GatingSets in gsList are modified via external pointers
+  flowWorkspace::dropRedundantNodes(gsGroups, nodes2Remove) # original GatingSets in gsList are modified via external pointers
 
   # And then drop any redundant channels in the GatingSets.
   # This specifically removes channels from a GatingSet if there are no nodes which have
   # the given channel as an associated gating channel/marker.
   # TODO: I am modifying these in place and overwriting the old gsList contents. Not sure if that's kosher.
   for (i in seq_along(gsList)) {
-    gsList[[i]] <- dropRedundantChannels(gsList[[i]])
+    gsList[[i]] <- flowWorkspace::dropRedundantChannels(gsList[[i]])
   }
 
   # There is no surefire way to obtain pairs of matched marker names and channel names,
@@ -109,21 +109,21 @@ prepare.gating.set.list.4.compass <- function(xmlFiles=NULL,
   # Obtain the common marker and channel pairings:
   commonMarkerChannelMappings <- Reduce(merge, lapply(gsList, function(x) {
     # parameters of the first flowFrame in x, the GatingSet
-    pData(parameters(getData(x[[1]])))[,1:2] }))
+    pData(parameters(flowWorkspace::getData(x[[1]])))[,1:2] }))
   paste("Common marker and channel pairings across all GatingSets:")
   print(commonMarkerChannelMappings)
 
   # The GatingSets should now be ready to combine into one GatingSetList
-  gsList4COMPASS <- GatingSetList(gsList)
+  gsList4COMPASS <- flowWorkspace::GatingSetList(gsList)
   # Save the new GatingSetList to disk
   # Delete outDir and its subdirectories
   paste(c(as.character(Sys.time()), " Overwriting outDir: ", outDir, "\n"), collapse="")
   unlink(outDir, recursive=TRUE)
-  save_gslist(gsList4COMPASS, path=outDir)
+  flowWorkspace::save_gslist(gsList4COMPASS, path=outDir)
   # Close all the workspaces, if applicable
   if (length(wsList) > 0) {
     for (i in 1:length(wsList)) {
-      closeWorkspace(wsList[[i]])
+      flowWorkspace::closeWorkspace(wsList[[i]])
     }
   }
 
