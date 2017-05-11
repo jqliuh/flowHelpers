@@ -51,25 +51,30 @@ highlight.boolean.subset.facs.plot <- function(path,
 ) {
   # TODO: check all required parameters exist
 
-  gs <- load_gslist(path)
-  metaSub <- pData(gs)[pData(gs)[individualsCol] == individual & (pData(gs)[conditioncol] == exp | pData(gs)[conditioncol] == ctrl),]
+  gs <- flowWorkspace::load_gslist(path)
+  metaSub <- flowWorkspace::pData(gs)[flowWorkspace::pData(gs)[individualsCol] == individual & (flowWorkspace::pData(gs)[conditioncol] == exp | flowWorkspace::pData(gs)[conditioncol] == ctrl),]
   gsSub <- gs[rownames(metaSub)]
   # getNodes(gsSub[[1]], path="auto")
 
   call <- substitute(booleanFilter(v), list(v = as.symbol(boolsubset)))
   g <- eval(call)
-  add(gsSub, g, parent = parentsubset, name="newnode")
-  getNodes(gsSub[[1]], path="auto")
-  recompute(gsSub, "newnode")
+  flowWorkspace::add(gsSub, g, parent = parentsubset, name="newnode")
+  flowWorkspace::getNodes(gsSub[[1]], path="auto")
+  flowWorkspace::recompute(gsSub, "newnode")
   # Obtain proportion of boolsubset cells and add as column to PopStats
-  boolsubsetPopStats <- getPopStats(gsSub, flowJo=FALSE, subpopulations=c("newnode"))
+  boolsubsetPopStats <- flowWorkspace::getPopStats(gsSub, flowJo=FALSE, subpopulations=c("newnode"))
   boolsubsetPopStats[, "Proportion"] <- boolsubsetPopStats[, "Count"] / boolsubsetPopStats[, "ParentCount"]
   boolsubsetPopStats[, "Percent"] <- sapply(formatC(round(boolsubsetPopStats[, "Count"] / boolsubsetPopStats[, "ParentCount"] * 100, 3)[[1]], 3, format="f"), function(x) paste(x, "%", sep=""), USE.NAMES=FALSE)
-  gsSubMetaData <- pData(gsSub)[,2:7]
+  gsSubMetaData <- flowWorkspace::pData(gsSub)[,2:length(colnames(flowWorkspace::pData(gsSub)))]
   gsSubMetaData <- cbind(gsSubMetaData, rownames(gsSubMetaData))
   colnames(gsSubMetaData)[length(colnames(gsSubMetaData))] <- "row.names"
-  boolsubsetPopStatsMerge <- merge(x=boolsubsetPopStats[, c("name", "Population", "Count", "Percent")], y=gsSubMetaData[, c("row.names", conditioncol, conditioncol2)], by.x="name", by.y="row.names")
-  facstitle <- paste(c(individualsCol, " ", as.character(individual), ", ", parentsubset, " cells\nResponse to ", exp, " vs ", conditioncol2), collapse="")
+  gsSubMetaDataCols <- if (conditioncol2 == ".") { c("row.names", conditioncol) } else {c("row.names", conditioncol, conditioncol2) }
+  boolsubsetPopStatsMerge <- merge(x=boolsubsetPopStats[, c("name", "Population", "Count", "Percent")], y=gsSubMetaData[, gsSubMetaDataCols], by.x="name", by.y="row.names")
+  facstitle <- if (conditioncol2 == ".") {
+    paste(c(individualsCol, " ", as.character(individual), ", ", parentsubset, " cells\nResponse to ", exp), collapse="")
+  } else {
+    paste(c(individualsCol, " ", as.character(individual), ", ", parentsubset, " cells\nResponse to ", exp, " vs ", conditioncol2), collapse="")
+  }
 
   # Simplify boolean subset for display
   subsetsmpl <- strsplit(boolsubset, split="&")[[1]]
@@ -83,20 +88,25 @@ highlight.boolean.subset.facs.plot <- function(path,
   subtitle1 <- paste(c("Full Boolean Subset: \n       ", possubsetFmtd, "\n       ", negsubsetFmted), collapse="")
 
   if (!is.null(facetorder)) {
-    pData(gsSub)[,conditioncol] <- factor(pData(gsSub)[,conditioncol], levels=facetorder)
-    pData(gsSub)[,conditioncol2] <- factor(pData(gsSub)[,conditioncol2])
+    flowWorkspace::pData(gsSub)[,conditioncol] <- factor(flowWorkspace::pData(gsSub)[,conditioncol], levels=facetorder)
+    if (conditioncol2 != ".") {
+      flowWorkspace::pData(gsSub)[,conditioncol2] <- factor(flowWorkspace::pData(gsSub)[,conditioncol2])
+    }
     boolsubsetPopStatsMerge <- as.data.frame(boolsubsetPopStatsMerge)
     boolsubsetPopStatsMerge[,conditioncol] <- factor(boolsubsetPopStatsMerge[,conditioncol], levels=facetorder)
   }
+  #boolsubsetPopStatsMerge$name <- rownames(boolsubsetPopStatsMerge)
 
-  facsplot <- ggcyto(gsSub, aes_string(x=xaxis, y=yaxis), subset=parentsubset) +
-    geom_hex(bins = 120) +
-    labs_cyto("marker") +
-    facet_grid(as.formula(paste(conditioncol, "~", conditioncol2))) +
-    labs(title=facstitle, subtitle=subtitle1) +
-    geom_overlay("newnode", col="red", size=0.2, alpha=0.7) +
-    geom_text(data=boolsubsetPopStatsMerge, aes(x=2300, y=5, label=Percent),
+  facsplot <- ggcyto::ggcyto(gsSub, ggplot2::aes_string(x=xaxis, y=yaxis), subset=parentsubset) +
+    ggplot2::geom_hex(bins = 120) +
+    ggcyto::labs_cyto("marker") +
+    ggplot2::facet_grid(as.formula(paste(conditioncol, "~", conditioncol2))) +
+    ggplot2::labs(title=facstitle, subtitle=subtitle1) +
+    ggcyto::geom_overlay("newnode", col="red", size=0.2, alpha=0.7) +
+    ggplot2::geom_text(data=boolsubsetPopStatsMerge, ggplot2::aes(x=2300, y=5, label=Percent),
               colour="black", inherit.aes=FALSE, parse=FALSE)
+  
+  width <- if (conditioncol2 == ".") { 5 } else { 9 }
 
   if (!is.null(outdir)) {
     # Simplify subset for file name
@@ -105,8 +115,8 @@ highlight.boolean.subset.facs.plot <- function(path,
     possubset <- subsetsmpl[grep("!", subsetsmpl, invert=TRUE)]
     # Rewrite as one string
     possubset <- paste(lapply(possubset, function(x) {splt <- strsplit(x, "/")[[1]]; splt[length(splt)][[1]]}), collapse="")
-    ggsave(filename=paste(c("FACSplot_", individualsCol, "_", individual, "_", parentsubset, "_", exp, "_", possubset, ".png"), collapse=""),
-           plot=facsplot, path=outdir, device="png", width=9, height=8, units="in")
+    ggplot2::ggsave(filename=paste(c("FACSplot_", individualsCol, "_", individual, "_", parentsubset, "_", exp, "_", possubset, ".png"), collapse=""),
+           plot=facsplot, path=outdir, device="png", width=width, height=8, units="in")
   } else {
     facsplot
   }
