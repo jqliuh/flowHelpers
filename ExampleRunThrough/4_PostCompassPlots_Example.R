@@ -30,7 +30,8 @@ dev.off()
 gatingSetListDir <- "/media/malisa/SharedStorage/uw/20170331_TB-ICS_ACS/GatingSetList4COMPASS"
 
 # Now pick an interesting, representative patient and highlight their polyfunctional cells in FACS plots
-# PATIENT ID 03-0311, Peptide ESAT-6, positive for IL17a, IFNg, CD154, IL2, and TNFa, negative for IL22
+# PATIENT ID 03-0311, Peptide ESAT-6, positive for IFNg, CD154, IL2, and TNFa, negative for IL22 and IL17a
+# left out IL4 to be consistent w/ the paper
 highlight.boolean.subset.facs.plot(path=gatingSetListDir,
                                    outdir=outdir,
                                    individualsCol="PATIENT ID",
@@ -39,6 +40,21 @@ highlight.boolean.subset.facs.plot(path=gatingSetListDir,
                                    exp="ESAT-6",
                                    ctrl="DMSO",
                                    parentsubset="4+",
-                                   boolsubset="4+/IL17+&4+/IFNg+&4+/154+&4+/IL2+&4+/TNFa+&!4+/IL22+",
+                                   boolsubset="4+/IFNg+&4+/154+&4+/IL2+&4+/TNFa+&!4+/IL22+&!4+/IL17+",
                                    xaxis="TNFa",
-                                   yaxis="IFNg")
+                                   yaxis="IFNg",
+                                   geomTextY=250)
+
+# Same as above, TB10.4
+highlight.boolean.subset.facs.plot(path=gatingSetListDir,
+                                   outdir=outdir,
+                                   individualsCol="PATIENT ID",
+                                   individual="03-0311",
+                                   conditioncol="Peptide",
+                                   exp="TB10.4",
+                                   ctrl="DMSO",
+                                   parentsubset="4+",
+                                   boolsubset="4+/IFNg+&4+/154+&4+/IL2+&4+/TNFa+&!4+/IL22+&!4+/IL17+",
+                                   xaxis="TNFa",
+                                   yaxis="IFNg",
+                                   geomTextY=250)

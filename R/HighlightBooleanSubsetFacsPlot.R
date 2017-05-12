@@ -46,17 +46,19 @@ highlight.boolean.subset.facs.plot <- function(path,
                                                boolsubset,
                                                xaxis,
                                                yaxis,
-                                               facetorder=NULL
+                                               facetorder=NULL,
+                                               geomTextY=5
 
 ) {
   # TODO: check all required parameters exist
+  library(flowWorkspace) # flowWorkspace::add doesn't seem to work w/o this line
 
   gs <- flowWorkspace::load_gslist(path)
   metaSub <- flowWorkspace::pData(gs)[flowWorkspace::pData(gs)[individualsCol] == individual & (flowWorkspace::pData(gs)[conditioncol] == exp | flowWorkspace::pData(gs)[conditioncol] == ctrl),]
   gsSub <- gs[rownames(metaSub)]
   # getNodes(gsSub[[1]], path="auto")
 
-  call <- substitute(booleanFilter(v), list(v = as.symbol(boolsubset)))
+  call <- substitute(flowWorkspace::booleanFilter(v), list(v = as.symbol(boolsubset)))
   g <- eval(call)
   flowWorkspace::add(gsSub, g, parent = parentsubset, name="newnode")
   flowWorkspace::getNodes(gsSub[[1]], path="auto")
@@ -64,7 +66,7 @@ highlight.boolean.subset.facs.plot <- function(path,
   # Obtain proportion of boolsubset cells and add as column to PopStats
   boolsubsetPopStats <- flowWorkspace::getPopStats(gsSub, flowJo=FALSE, subpopulations=c("newnode"))
   boolsubsetPopStats[, "Proportion"] <- boolsubsetPopStats[, "Count"] / boolsubsetPopStats[, "ParentCount"]
-  boolsubsetPopStats[, "Percent"] <- sapply(formatC(round(boolsubsetPopStats[, "Count"] / boolsubsetPopStats[, "ParentCount"] * 100, 3)[[1]], 3, format="f"), function(x) paste(x, "%", sep=""), USE.NAMES=FALSE)
+  boolsubsetPopStats[, "Percent"] <- sapply(formatC(base::round(with(boolsubsetPopStats, Count / ParentCount) * 100, 3), 3, format="f"), function(x) paste(x, "%", sep=""), USE.NAMES=FALSE)
   gsSubMetaData <- flowWorkspace::pData(gsSub)[,2:length(colnames(flowWorkspace::pData(gsSub)))]
   gsSubMetaData <- cbind(gsSubMetaData, rownames(gsSubMetaData))
   colnames(gsSubMetaData)[length(colnames(gsSubMetaData))] <- "row.names"
@@ -95,15 +97,14 @@ highlight.boolean.subset.facs.plot <- function(path,
     boolsubsetPopStatsMerge <- as.data.frame(boolsubsetPopStatsMerge)
     boolsubsetPopStatsMerge[,conditioncol] <- factor(boolsubsetPopStatsMerge[,conditioncol], levels=facetorder)
   }
-  #boolsubsetPopStatsMerge$name <- rownames(boolsubsetPopStatsMerge)
 
   facsplot <- ggcyto::ggcyto(gsSub, ggplot2::aes_string(x=xaxis, y=yaxis), subset=parentsubset) +
     ggplot2::geom_hex(bins = 120) +
     ggcyto::labs_cyto("marker") +
-    ggplot2::facet_grid(as.formula(paste(conditioncol, "~", conditioncol2))) +
+    ggplot2::facet_grid(stats::as.formula(paste(conditioncol, "~", conditioncol2))) +
     ggplot2::labs(title=facstitle, subtitle=subtitle1) +
     ggcyto::geom_overlay("newnode", col="red", size=0.2, alpha=0.7) +
-    ggplot2::geom_text(data=boolsubsetPopStatsMerge, ggplot2::aes(x=2300, y=5, label=Percent),
+    ggplot2::geom_text(data=boolsubsetPopStatsMerge, ggplot2::aes_string(x=2300, y=get("geomTextY"), label="Percent"),
               colour="black", inherit.aes=FALSE, parse=FALSE)
   
   width <- if (conditioncol2 == ".") { 5 } else { 9 }
