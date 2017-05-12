@@ -49,31 +49,34 @@ boxplot.boolean.subset.proportions <- function(path,
 
 ) {
   # TODO: check all required parameters exist
+  library(flowWorkspace) # flowWorkspace::add doesn't seem to work w/o this line
 
-  gs <- load_gslist(path)
+  gs <- flowWorkspace::load_gslist(path)
   # Add a node with boolsubset-only cells
-  call <- substitute(booleanFilter(v), list(v = as.symbol(boolsubset)))
+  call <- substitute(flowWorkspace::booleanFilter(v), list(v = as.symbol(boolsubset)))
   g <- eval(call)
-  add(gs, g, parent = parentsubset, name="newnode")
-  getNodes(gs[[1]], path="auto")
-  recompute(gs, "newnode")
+  flowWorkspace::add(gs, g, parent = parentsubset, name="newnode")
+  flowWorkspace::getNodes(gs[[1]], path="auto")
+  flowWorkspace::recompute(gs, "newnode")
   # Obtain count data for the subset
-  countData <- getPopStats(gs, flowJo=FALSE, subpopulations=c("newnode"))
-  subsetMetaData <- pData(gs)[(pData(gs)[conditioncol] == exp | pData(gs)[conditioncol] == ctrl),][,2:7]
+  countData <- flowWorkspace::getPopStats(gs, flowJo=FALSE, subpopulations=c("newnode"))
+  subsetMetaData <- flowWorkspace::pData(gs)[(flowWorkspace::pData(gs)[conditioncol] == exp | flowWorkspace::pData(gs)[conditioncol] == ctrl),][,2:length(colnames(flowWorkspace::pData(gs)))]
   subsetMetaData <- cbind(subsetMetaData, rownames(subsetMetaData))
   colnames(subsetMetaData)[length(colnames(subsetMetaData))] <- "row.names"
   counts4boxplots <- merge(x=countData, y=subsetMetaData, by.x="name", by.y="row.names")
   # Now that all the required information is in the data frame, add a new column of proportions
   counts4boxplots[, "CountAsProportion"] <- counts4boxplots[, "Count"] / counts4boxplots[, "ParentCount"]
   # Split the data into 2 tables, one for the control and one for experimental
-  countsCtrl <- counts4boxplots[as.vector(counts4boxplots[,get(conditioncol)] == ctrl),]
-  countsExp <- counts4boxplots[as.vector(counts4boxplots[,get(conditioncol)] == exp),]
+  countsCtrl <- counts4boxplots[as.vector(as.data.frame(counts4boxplots)[,conditioncol] == ctrl),]
+  countsExp <- counts4boxplots[as.vector(as.data.frame(counts4boxplots)[,conditioncol] == exp),]
   # Then merge the data, this time column-wise by merging on uniqueSamplesCol
-  countsCtrl4Merge <- cbind(countsCtrl[,get(uniqueSamplesCol)], countsCtrl[,"CountAsProportion"])
-  colnames(countsCtrl4Merge)[1] <- uniqueSamplesCol
+  countsCtrl4Merge <- cbind(as.data.frame(countsCtrl)[,uniqueSamplesCol], countsCtrl[,"CountAsProportion"])
+  countsCtrl4Merge <- as.data.frame(countsCtrl4Merge)
+  colnames(countsCtrl4Merge) <- c(uniqueSamplesCol, "CountAsProportion")
   counts4boxplotsMerge <- merge(x=countsExp, y=countsCtrl4Merge, by=c(eval(uniqueSamplesCol)), suffixes=c("", ".ctrl"))
-  counts4boxplotsMerge[, "CountAsProportionDiff"] <- counts4boxplotsMerge[, "CountAsProportion"] - counts4boxplotsMerge[, "CountAsProportion.ctrl"]
-  counts4boxplotsMerge[, "CountAsProportionDiffPos"] <- sapply(counts4boxplotsMerge[, "CountAsProportionDiff"][[1]], function(x) max(x, 0))
+  counts4boxplotsMerge[,"CountAsProportion.ctrl"] <- as.numeric(as.character(counts4boxplotsMerge[["CountAsProportion.ctrl"]]))
+  counts4boxplotsMerge[, "CountAsProportionDiff"] <- counts4boxplotsMerge[["CountAsProportion"]] - counts4boxplotsMerge[["CountAsProportion.ctrl"]]
+  counts4boxplotsMerge[, "CountAsProportionDiffPos"] <- sapply(with(counts4boxplotsMerge, CountAsProportionDiff), function(x) max(x, 0))
 
   # Simplify boolean subset for display
   subsetsmpl <- strsplit(boolsubset, split="&")[[1]]
@@ -91,19 +94,19 @@ boxplot.boolean.subset.proportions <- function(path,
   }
 
   # Finally, plot!
-  plot <- ggplot(counts4boxplotsMerge, aes(factor(get(conditioncol2)), CountAsProportionDiffPos)) +
-    geom_boxplot() +
-    geom_jitter() +
-    theme(plot.title=element_text(vjust=-0.8, hjust=0.5)) +
-    labs(x=conditioncol2, y="max(Ps-Pu, 0)",
+  plot <- ggplot2::ggplot(counts4boxplotsMerge, ggplot2::aes_string(get("conditioncol2"), "CountAsProportionDiffPos")) +
+    ggplot2::geom_boxplot() +
+    ggplot2::geom_jitter() +
+    ggplot2::theme(plot.title=ggplot2::element_text(vjust=-0.8, hjust=0.5)) +
+    ggplot2::labs(x=conditioncol2, y="max(Ps-Pu, 0)",
          title=plottitle, subtitle=subtitle1) +
-    coord_cartesian(ylim=ylimits) # adjust visible data for y axis but keep points
+    ggplot2::coord_cartesian(ylim=ylimits) # adjust visible data for y axis but keep points
 
   if (!is.null(outdir)) {
     # Save plot to disk
     # Rewrite possubset as one string
     possubset4file <- paste(lapply(possubset, function(x) {splt <- strsplit(x, "/")[[1]]; splt[length(splt)][[1]]}), collapse="")
-    ggsave(filename=paste(c("Boxplot_", parentsubset, "_", exp, "_", possubset4file, ".png"), collapse=""),
+    ggplot2::ggsave(filename=paste(c("Boxplot_", parentsubset, "_", exp, "_", possubset4file, ".png"), collapse=""),
            plot=plot, path=outdir, device="png",
            width=8.5, height=6, units="in")
   } else {

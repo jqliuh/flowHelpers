@@ -58,3 +58,21 @@ highlight.boolean.subset.facs.plot(path=gatingSetListDir,
                                    xaxis="TNFa",
                                    yaxis="IFNg",
                                    geomTextY=250)
+
+# Look at the same subset across all individuals, in a boxplot comparing M.tb-uninfected to M.tb-infected
+# For ESAT-6 and TB10.4:
+antigens <- c("ESAT-6", "TB10.4")
+for (i in 1:length(antigens)) {
+  boxplot.boolean.subset.proportions(path=gatingSetListDir,
+                                     outdir=outdir,
+                                     conditioncol="Peptide",
+                                     exp=antigens[[i]],
+                                     ctrl="DMSO",
+                                     conditioncol2="QuantiferonInTubeResult",
+                                     parentsubset="4+",
+                                     boolsubset="4+/IFNg+&4+/154+&4+/IL2+&4+/TNFa+&!4+/IL22+&!4+/IL17+",
+                                     uniqueSamplesCol="PATIENT ID",
+                                     ylimits=c(0, 0.007))
+}
+# Note: this is NOT comparable to Figure 3C because Figure 3C doesn't account for the difference between DMSO and the peptide of interest
+  

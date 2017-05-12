@@ -7,7 +7,7 @@ Recommended workflow is:
 3. Run COMPASS using `generic.compass.wrapper()`
 4. Visualize the resulting data of interest using `boxplot.boolean.subset.proportions()`, `highlight.boolean.subset.facs.plot()`, and `fs.line.plot()`
 
-See the ExampleRunThrough folder for a complete run-through example. The dataset comes from the paper [T Cell Responses against Mycobacterial Lipids and Proteins Are Poorly Correlated in South African Adolescents](http://www.jimmunol.org/content/195/10/4595.long), specifically the tuberculosis adolescent cohort study. The GatingSets and output rds files are not included due to their size.
+See the ExampleRunThrough folder for a complete run-through example. The dataset comes from the paper [T Cell Responses against Mycobacterial Lipids and Proteins Are Poorly Correlated in South African Adolescents](http://www.jimmunol.org/content/195/10/4595.long), specifically the tuberculosis adolescent cohort study Figure 4. The GatingSets and output rds files are not included due to their size. Results may not be exactly the same due to inclusion/exclusion of samples and other differences in data processing.
 
 # Installation:
 
@@ -27,6 +27,11 @@ flowWorkspace
 ggcyto
 ggplot2
 pryr
+flowCore
+ncdfFlow
+RcppArmadillo
+BH
+stats
 ```
 
 Note: If you encounter a COMPASS `plot()` namespace error, try re-installing COMPASS like this:  
