@@ -41,7 +41,7 @@ fsTable <- read.table(fsFile, header=TRUE, sep="\\t", check.names=FALSE)
 cellSubset <- as.character(fsTable[,"CellSubset"])
 condition <- as.character(fsTable[,conditioncol])
 fsData1 <- t(fsTable[,3:length(colnames(fsTable))])
-fsData1 <- cbind(fsData1, ldply(rownames(fsData), .fun = function(x) {strsplit(x, ", Time ")[[1]]}))
+fsData1 <- cbind(fsData1, ldply(rownames(fsData1), .fun = function(x) {strsplit(x, ", Time ")[[1]]}))
 colnames(fsData1) <- c("FunctionalityScore", "PTID", "Time")
 # Draw the line plot
 fs.line.plot(fsData=fsData1, xaxis="Time", yaxis="FunctionalityScore", groupName="PTID", addBox=TRUE, ylimits=ylims)

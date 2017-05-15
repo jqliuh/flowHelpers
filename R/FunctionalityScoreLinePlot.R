@@ -24,7 +24,7 @@
 #' cellSubset <- as.character(fsTable[,"CellSubset"])
 #' condition <- as.character(fsTable[,conditioncol])
 #' fsData1 <- t(fsTable[,3:length(colnames(fsTable))])
-#' fsData1 <- cbind(fsData1, ldply(rownames(fsData), .fun = function(x) {strsplit(x, ", Time ")[[1]]}))
+#' fsData1 <- cbind(fsData1, ldply(rownames(fsData1), .fun = function(x) {strsplit(x, ", Time ")[[1]]}))
 #' colnames(fsData1) <- c("FunctionalityScore", "PTID", "Time")
 #' # Draw the line plot
 #' fs.line.plot(fsData=fsData1, xaxis="Time", yaxis="FunctionalityScore", groupName="PTID", addBox=TRUE, ylimits=ylims)
@@ -37,23 +37,23 @@ fs.line.plot <- function(fsData,
                          addBox=FALSE,
                          ylimits=NULL,
                          fileSuffix=NULL) {
-  p1 <- ggplot(data=fsData, aes_string(x=xaxis, y=yaxis, group=groupName))
+  p1 <- ggplot2::ggplot(data=fsData, ggplot2::aes_string(x=xaxis, y=yaxis, group=groupName))
   if (addBox) {
-    p1 <- p1 + geom_boxplot(inherit.aes=FALSE, aes_string(x=xaxis, y=yaxis),
+    p1 <- p1 + ggplot2::geom_boxplot(inherit.aes=FALSE, ggplot2::aes_string(x=xaxis, y=yaxis),
                             alpha=0.5, colour = "#3366FF")
   }
   p1 <- p1 +
-    geom_point() + geom_line() +
-    labs(title=paste(c(cellSubset, ", ", condition), collapse=""),
+    ggplot2::geom_point() + ggplot2::geom_line() +
+    ggplot2::labs(title=paste(c(cellSubset, ", ", condition), collapse=""),
          x=xaxis, y=yaxis) +
-    theme_set(theme_gray(base_size = 15)) +
-    coord_cartesian(ylim=ylimits)
+    ggplot2::theme_set(ggplot2::theme_gray(base_size = 15)) +
+    ggplot2::coord_cartesian(ylim=ylimits)
   if (is.null(outdir)) {
     p1
   } else {
     pngName <- file.path(outdir, paste(c("LinePlot_", yaxis, "_v_", xaxis, fileSuffix, ".png"), collapse=""))
     cat(paste(c("Saving png to ", pngName, "\n"), collapse=""))
-    ggsave(filename=pngName,
+    ggplot2::ggsave(filename=pngName,
            plot=p1,
            width=6.66, height=7.85)
   }

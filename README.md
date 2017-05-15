@@ -33,20 +33,3 @@ RcppArmadillo
 BH
 stats
 ```
-
-Note: If you encounter a COMPASS `plot()` namespace error, try re-installing COMPASS like this:  
-```
-# from the command line
-sudo R
-source("https://bioconductor.org/biocLite.R")
-biocLite("COMPASS")
-# say yes to any package update suggestions
-```
-
-Otherwise, please use the latest versions of flowWorkspace (>= 3.20.5), and ggcyto (>= 1.3.8).  
-You can type, in R: 
-```r
-library(devtools)
-install_github("RGLab/flowWorkspace", ref="trunk")
-install_github("RGLab/ggcyto", ref="trunk")
-```
