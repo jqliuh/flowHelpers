@@ -97,7 +97,7 @@ run.compass.once <- function(gs,
 #' COMPASS Wrapper
 #'
 #' This function runs COMPASS once for each of the unique values defined by the uniqueruns argument (if provided)
-#' @param path The path to the folder in which the GatingSetList is saved
+#' @param path The path to the folder in which the GatingSetList or GatingSet is saved
 #' @param cnode Node on which to run COMPASS
 #' @param nodemarkermap List mapping nodes to marker names
 #' @param outdir Directory in which to save output, e.g. heatmaps
@@ -168,8 +168,17 @@ generic.compass.wrapper <- function(path=NULL,
     set.seed(seed)
   }
 
-  # Load the saved GatingSetList:
-  gsListForCOMPASS <- flowWorkspace::load_gslist(path)
+  # Load the saved GatingSetList or GatingSet:
+  loadGSListOrGS <- function (path) {
+    out <- try(flowWorkspace::load_gslist(path))
+    if (class(out) == "try-error") {
+      cat("Caught an error during flowWorkspace::load_gslist, trying flowWorkspace::load_gs.\n")
+      out <- flowWorkspace::load_gs(path)
+    }
+    out
+  }
+  
+  gsListForCOMPASS <- loadGSListOrGS(path)
   meta <- flowWorkspace::pData(gsListForCOMPASS)
 
   # Run COMPASS once or multiple times depending on whether uniqueruns is given

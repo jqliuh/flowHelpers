@@ -10,7 +10,7 @@ generic.compass.wrapper(path = NULL, seed = NULL, outdir = NULL,
   lineplotgroupby = NULL)
 }
 \arguments{
-\item{path}{The path to the folder in which the GatingSetList is saved}
+\item{path}{The path to the folder in which the GatingSetList or GatingSet is saved}
 
 \item{seed}{(Optional) Number to set seed to [default NULL]}
 
