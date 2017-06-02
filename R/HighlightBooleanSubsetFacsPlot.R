@@ -3,7 +3,7 @@
 #' Defines a function to Overlay and Highlight Polyfunctional Cell Subsets on a FACS plot
 #' This function assumes there are two columns, conditioncol and conditioncol2, upon which you are stratifying the plots
 #'
-#' @param path path to directory holding GatingSetList
+#' @param path path to directory holding GatingSetList or GatingSet
 #' @param individualsCol column which defines individual
 #' @param individual value of individual in individualsCol whose data you want to plot
 #' @param conditioncol name of the column that defines the main experimental condition, e.g. Antigen
@@ -53,7 +53,17 @@ highlight.boolean.subset.facs.plot <- function(path,
   # TODO: check all required parameters exist
   library(flowWorkspace) # flowWorkspace::add doesn't seem to work w/o this line
 
-  gs <- flowWorkspace::load_gslist(path)
+  # Load the saved GatingSetList or GatingSet:
+  loadGSListOrGS <- function (path) {
+    out <- try(flowWorkspace::load_gslist(path))
+    if (class(out) == "try-error") {
+      cat("Caught an error during flowWorkspace::load_gslist, trying flowWorkspace::load_gs.\n")
+      out <- flowWorkspace::load_gs(path)
+    }
+    out
+  }
+  
+  gs <- loadGSListOrGS(path)
   metaSub <- flowWorkspace::pData(gs)[flowWorkspace::pData(gs)[individualsCol] == individual & (flowWorkspace::pData(gs)[conditioncol] == exp | flowWorkspace::pData(gs)[conditioncol] == ctrl),]
   gsSub <- gs[rownames(metaSub)]
   # getNodes(gsSub[[1]], path="auto")

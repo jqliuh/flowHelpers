@@ -51,7 +51,18 @@ boxplot.boolean.subset.proportions <- function(path,
   # TODO: check all required parameters exist
   library(flowWorkspace) # flowWorkspace::add doesn't seem to work w/o this line
 
-  gs <- flowWorkspace::load_gslist(path)
+  # Load the saved GatingSetList or GatingSet:
+  loadGSListOrGS <- function (path) {
+    out <- try(flowWorkspace::load_gslist(path))
+    if (class(out) == "try-error") {
+      cat("Caught an error during flowWorkspace::load_gslist, trying flowWorkspace::load_gs.\n")
+      out <- flowWorkspace::load_gs(path)
+    }
+    out
+  }
+  
+  gs <- loadGSListOrGS(path)
+  
   # Add a node with boolsubset-only cells
   call <- substitute(flowWorkspace::booleanFilter(v), list(v = as.symbol(boolsubset)))
   g <- eval(call)

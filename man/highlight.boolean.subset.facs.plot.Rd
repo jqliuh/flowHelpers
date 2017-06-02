@@ -9,7 +9,7 @@ highlight.boolean.subset.facs.plot(path, outdir = NULL, individualsCol,
   boolsubset, xaxis, yaxis, facetorder = NULL, geomTextY = 5)
 }
 \arguments{
-\item{path}{path to directory holding GatingSetList}
+\item{path}{path to directory holding GatingSetList or GatingSet}
 
 \item{individualsCol}{column which defines individual}
 

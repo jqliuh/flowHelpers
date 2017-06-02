@@ -10,9 +10,11 @@ boxplot.cell.counts <- function(flowJoXmlPath=NULL, gatingSetPath=NULL,
                     keywords2import=NULL, stratifyByLevel1, stratifyByLevel2=NULL)
 }
 \arguments{
-\item{flowJoXmlPath}{full path to FlowJo Xml file for import (flowJoXmlPath or gatingSetPath is required)}
+\item{flowJoXmlPath}{full path to FlowJo Xml file for import (flowJoXmlPath or gatingSetPath or gatingSet is required)}
 
-\item{gatingSetPath}{path to saved GatingSet directory for import (flowJoXmlPath or gatingSetPath is required)}
+\item{gatingSetPath}{path to saved GatingSet directory for import (flowJoXmlPath or gatingSetPath or gatingSet is required)}
+
+\item{gatingSet}{a GatingSet object (flowJoXmlPath or gatingSetPath or gatingSet is required)]}
 
 \item{fcsPath}{(Optional) directory where FCS files reside, if not in the same directory as flowJoXmlPath}
 
@@ -27,6 +29,8 @@ boxplot.cell.counts <- function(flowJoXmlPath=NULL, gatingSetPath=NULL,
 \item{stratifyByLevel1}{Required keyword on which to stratify boxplot data (usually "PATIENT ID")}
 
 \item{stratifyByLevel2}{(Optional) additional keyword on which to stratify boxplot data}
+
+\item{batch}{the batch name, required if data is passed in as a gatingSet}
 }
 \value{
 Boxplot of cell counts stratified by stratifyByLevel1, unless outdir is specified.

@@ -5,8 +5,10 @@
 #' Plot the number of cells that are CD3+ (or your specified population) for each sample.
 #' Run this function once for each batch to be combined later. Can use to look for batch effects.
 #'
-#' @param flowJoXmlPath full path to FlowJo Xml file for import (flowJoXmlPath or gatingSetPath is required)
-#' @param gatingSetPath path to saved GatingSet directory for import (flowJoXmlPath or gatingSetPath is required)
+#' @param flowJoXmlPath full path to FlowJo Xml file for import (flowJoXmlPath or gatingSetPath or gatingSet is required)
+#' @param gatingSetPath path to saved GatingSet directory for import (flowJoXmlPath or gatingSetPath or gatingSet is required)
+#' @param gatingSet a GatingSet object (flowJoXmlPath or gatingSetPath or gatingSet is required)]
+#' @param batch the batch name, required if data is passed in as a gatingSet
 #' @param stratifyByLevel1 Required keyword on which to stratify boxplot data (usually "PATIENT ID")
 #' @param fcsPath (Optional) directory where FCS files reside, if not in the same directory as flowJoXmlPath
 #' @param keywords2import (Optional) keywords to import from flowJo into GatingSet metadata, required for flowJoXmlPath
@@ -30,17 +32,19 @@
 #'                     }
 boxplot.cell.counts <- function(flowJoXmlPath=NULL,
                                 gatingSetPath=NULL,
+                                gatingSet=NULL,
                                 fcsPath=if (!.isnull(flowJoXmlPath)) { dirname(flowJoXmlPath) },
                                 outdir=NULL,
                                 sampleGroup=3,
                                 subpopulation="3+",
                                 keywords2import=NULL,
                                 stratifyByLevel1,
-                                stratifyByLevel2=NULL
+                                stratifyByLevel2=NULL,
+                                batch=NULL
 ) {
   # Check that required arguments are provided
-  if (is.null(flowJoXmlPath) & is.null(gatingSetPath)) {
-    stop("flowJoXmlPath or gatingSetPath parameter must be provided.")
+  if (is.null(flowJoXmlPath) & is.null(gatingSetPath) & is.null(gatingSet)) {
+    stop("flowJoXmlPath or gatingSetPathor gatingSet parameter must be provided.")
   }
   if (!is.null(flowJoXmlPath)) {
     if (is.null(keywords2import)) {
@@ -54,43 +58,53 @@ boxplot.cell.counts <- function(flowJoXmlPath=NULL,
         stop("stratifyByLevel2 must exist within keywords2import.")
       }
     }
+  } else if (!is.null(gatingSet)) {
+    if (is.null(batch)) {
+      stop("batch parameter must be provided.")
+    }
   }
   if (is.null(stratifyByLevel1)) {
     stop("stratifyByLevel1 parameter must be provided.")
   }
 
-  gs <- NULL
+  gs <- gatingSet
   if (!is.null(flowJoXmlPath)) {
     # Read in the workspace
     cat(paste(c("Opening ", flowJoXmlPath, "\n"), collapse=""))
-    ws <- openWorkspace(flowJoXmlPath)
+    ws <- flowWorkspace::openWorkspace(flowJoXmlPath)
 
     # Read in the sample fcs files as a GatingSet
     # The keywords option, a character vector, specifies the keywords to be extracted as pData of GatingSet
-    gs <- parseWorkspace(ws, name=sampleGroup, path=fcsPath, keywords=keywords2import)
-    # Make the name the rownames
-    pData(gs)[,"name"] <- rownames(pData(gs))
+    gs <- flowWorkspace::parseWorkspace(ws, name=sampleGroup, path=fcsPath, keywords=keywords2import)
   } else if (!is.null(gatingSetPath)) {
-    gs <- load_gs(gatingSetPath)
-    # Make the name the rownames
-    pData(gs)[,"name"] <- rownames(pData(gs))
+    gs <- flowWorkspace::load_gs(gatingSetPath)
   }
+  # Make the name the rownames
+  flowWorkspace::pData(gs)[,"name"] <- rownames(pData(gs))
 
   # Obtain the subpopulation cell counts
   # Counts indicate flowCore recomputed counts, not FlowJo amounts
-  popStats <- getPopStats(gs, subpopulations = subpopulation)
+  popStats <- flowWorkspace::getPopStats(gs, subpopulations = subpopulation)
 
   # Merge the pData and popStats data tables together.
-  annotatedCounts <- merge(pData(gs), popStats, by="name")
+  annotatedCounts <- merge(flowWorkspace::pData(gs), popStats, by="name")
+  # Add a column labeling points which have less than 25,000 cells
+  annotatedCounts$pointLabels <- ifelse(annotatedCounts$Count < 25000, annotatedCounts$name, as.numeric(NA))
 
   if (!is.null(flowJoXmlPath)) {
     closeWorkspace(ws)
   }
 
-  batchName <- if (!is.null(flowJoXmlPath)) { tools::file_path_sans_ext(basename(flowJoXmlPath)) } else { tools::file_path_sans_ext(basename(gatingSetPath)) }
+  batchName <- if (!is.null(batch)) {
+    batch
+  } else if (!is.null(flowJoXmlPath)) {
+      tools::file_path_sans_ext(basename(flowJoXmlPath))
+  } else {
+      tools::file_path_sans_ext(basename(gatingSetPath))
+  }
   countsBoxplot <- {
     if (is.null(stratifyByLevel2)) {
-      plotTitle <- paste(c(subpopulation, " flowCore Counts for\n", batchName,
+      plotTitle <- paste(c(subpopulation, " flowCore Counts\nfor ", batchName,
                            "\nGrouped by ", stratifyByLevel1), collapse="")
       plotCounts <- ggplot2::ggplot(annotatedCounts, ggplot2::aes(x=factor(get(stratifyByLevel1)), y=Count)) +
         ggplot2::geom_boxplot() +
@@ -99,10 +113,11 @@ boxplot.cell.counts <- function(flowJoXmlPath=NULL,
         ggplot2::labs(title=plotTitle) + ggplot2::xlab(stratifyByLevel1) +
         ggplot2::geom_hline(yintercept=25000) +
         ggplot2::theme(plot.title=ggplot2::element_text(hjust=0.5, size=30), axis.text=ggplot2::element_text(size=16),
-              axis.title=ggplot2::element_text(size=22,face="bold"), legend.position="none", strip.text.x = ggplot2::element_text(size = 15))# +
+              axis.title=ggplot2::element_text(size=22,face="bold"), legend.position="none", strip.text.x = ggplot2::element_text(size = 15)) +
+        ggplot2::geom_text(ggplot2::aes(label=pointLabels), na.rm = TRUE)
       plotCounts
     } else {
-      plotTitle <- paste(c(subpopulation, " flowCore Counts for\n", batchName,
+      plotTitle <- paste(c(subpopulation, " flowCore Counts\nfor ", batchName,
                            "\nGrouped by ", stratifyByLevel1, " and ", stratifyByLevel2), collapse="")
       plotCounts <- ggplot2::ggplot(annotatedCounts, ggplot2::aes(x=factor(get(stratifyByLevel2)), y=Count)) +
         ggplot2::geom_boxplot() +
@@ -112,7 +127,8 @@ boxplot.cell.counts <- function(flowJoXmlPath=NULL,
         ggplot2::geom_hline(yintercept=25000) +
         ggplot2::theme(plot.title=ggplot2::element_text(hjust=0.5, size=30), axis.text=ggplot2::element_text(size=16),
               axis.title=ggplot2::element_text(size=22,face="bold"), legend.position="none", strip.text.x = ggplot2::element_text(size = 15)) +
-        ggplot2::facet_grid(as.formula(paste(c("~ ", "`", stratifyByLevel1, "`"), collapse="")), scales="free_x")
+        ggplot2::facet_grid(as.formula(paste(c("~ ", "`", stratifyByLevel1, "`"), collapse="")), scales="free_x") +
+        ggplot2::geom_text(ggplot2::aes(label = pointLabels), na.rm = TRUE)
       plotCounts
     }
   }
