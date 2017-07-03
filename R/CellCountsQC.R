@@ -42,7 +42,8 @@ boxplot.cell.counts <- function(flowJoXmlPath=NULL,
                                 stratifyByLevel1,
                                 stratifyByLevel2=NULL,
                                 batch=NULL,
-                                threshold=25000
+                                threshold=25000,
+                                yMaxPlot=NA
 ) {
   # Check that required arguments are provided
   if (is.null(flowJoXmlPath) & is.null(gatingSetPath) & is.null(gatingSet)) {
@@ -113,10 +114,11 @@ boxplot.cell.counts <- function(flowJoXmlPath=NULL,
         ggplot2::stat_summary(fun.y=mean, geom="point", shape=8, size=4) +
         ggplot2::geom_point(shape=16) +
         ggplot2::labs(title=plotTitle) + ggplot2::xlab(stratifyByLevel1) +
-        ggplot2::geom_hline(yintercept=25000) +
+        ggplot2::geom_hline(yintercept=threshold) +
         ggplot2::theme(plot.title=ggplot2::element_text(hjust=0.5, size=30), axis.text=ggplot2::element_text(size=16),
               axis.title=ggplot2::element_text(size=22,face="bold"), legend.position="none", strip.text.x = ggplot2::element_text(size = 15)) +
-        ggplot2::geom_text(ggplot2::aes(label=pointLabels), na.rm = TRUE)
+        ggplot2::geom_text(ggplot2::aes(label=pointLabels), na.rm = TRUE) +
+        ylim(c(0, yMaxPlot))
       plotCounts
     } else {
       plotTitle <- paste(c(subpopulation, " flowCore Counts\nfor ", batchName,
@@ -126,11 +128,12 @@ boxplot.cell.counts <- function(flowJoXmlPath=NULL,
         ggplot2::stat_summary(fun.y=mean, geom="point", shape=8, size=4) +
         ggplot2::geom_point(shape=16) +
         ggplot2::labs(title=plotTitle) + ggplot2::xlab(stratifyByLevel1) +
-        ggplot2::geom_hline(yintercept=25000) +
+        ggplot2::geom_hline(yintercept=threshold) +
         ggplot2::theme(plot.title=ggplot2::element_text(hjust=0.5, size=30), axis.text=ggplot2::element_text(size=16),
               axis.title=ggplot2::element_text(size=22,face="bold"), legend.position="none", strip.text.x = ggplot2::element_text(size = 15)) +
         ggplot2::facet_grid(as.formula(paste(c("~ ", "`", stratifyByLevel1, "`"), collapse="")), scales="free_x") +
-        ggplot2::geom_text(ggplot2::aes(label = pointLabels), na.rm = TRUE)
+        ggplot2::geom_text(ggplot2::aes(label = pointLabels), na.rm = TRUE) +
+        ylim(c(0, yMaxPlot))
       plotCounts
     }
   }
