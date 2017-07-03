@@ -16,7 +16,10 @@
 #' @param uniqueSamplesCol: pData column which defines unique samples, e.g. "Time.PTID"
 #' @param outdir (Optional), saves image in output directory if given
 #' @param ylimits (Optional), yaxis limits. numeric vector
-#' @param shortenTitle (Optional), a Boolean which specifies whether to shorten the title
+#' @param titleHeader (Optional), a string containing the title of the plot (overrides the default)
+#' @param shortenTitle (Optional), a Boolean which specifies whether to shorten the title (overriden by titleHeader)
+#' @param gsSubset (Optional), for now, just a numeric vector containing indices by which to subset gs for the plot.
+#' In the future, perhaps a logical expression on "gs" to limit the GatingSet(List) data used, e.g. which(pData(gs)$PatientTreatment == 'HSV529')
 #' @return Boxplot of the difference in cell proportions, unless outdir is given
 #' @export boxplot.boolean.subset.proportions
 #' @usage boxplot(path, outdir = NULL,
@@ -45,7 +48,9 @@ boxplot.boolean.subset.proportions <- function(path,
                                                boolsubset,
                                                ylimits=NULL,
                                                shortenTitle=FALSE,
-                                               uniqueSamplesCol
+                                               uniqueSamplesCol,
+                                               titleHeader=NULL,
+                                               gsSubset=NULL
 
 ) {
   # TODO: check all required parameters exist
@@ -62,6 +67,10 @@ boxplot.boolean.subset.proportions <- function(path,
   }
   
   gs <- loadGSListOrGS(path)
+  if(!is.null(gsSubset)) {
+    gs <- gs[gsSubset]
+    # gs <- eval(substitute(gsSubset), gs, parent.frame()) 
+  }
   
   # Add a node with boolsubset-only cells
   call <- substitute(flowWorkspace::booleanFilter(v), list(v = as.symbol(boolsubset)))
@@ -97,10 +106,18 @@ boxplot.boolean.subset.proportions <- function(path,
   # What we're selecting AGAINST
   negsubset <- subsetsmpl[grep("!", subsetsmpl)]
   negsubsetFmted <- paste("Neg: ", paste(lapply(negsubset, function(x) {splt <- strsplit(x, "!")[[1]]; splt[length(splt)][[1]]}), collapse=", "), sep="")
-  plottitle <- paste(c("Difference in cell subset proportions between ", exp, " and ", ctrl), collapse="")
+  plottitle <- if(is.null(titleHeader)) { 
+    paste(c("Difference in cell subset proportions between ", exp, " and ", ctrl), collapse="") }
+  else {
+    titleHeader
+  }
   subtitle1 <- paste(c("Full Boolean Subset: \n       ", possubsetFmtd, "\n       ", negsubsetFmted), collapse="")
   if (shortenTitle) {
-    plottitle <- exp
+    plottitle <- if(is.null(titleHeader)) { 
+      exp }
+  else {
+      titleHeader
+    }
     subtitle1 <- paste(c("Boolean Subset:\n", possubsetFmtd, " Neg: all other markers"), collapse="")
   }
 

@@ -5,7 +5,7 @@
 \title{Line plot of Functionality Score vs. some other axis}
 \usage{
 fs.line.plot(fsData, outdir = NULL, xaxis, yaxis, groupName, addBox = FALSE,
-  ylimits = NULL, fileSuffix = NULL)
+  ylimits = NULL, fileSuffix = NULL, condition = NULL)
 }
 \arguments{
 \item{fsData}{data table to plot}

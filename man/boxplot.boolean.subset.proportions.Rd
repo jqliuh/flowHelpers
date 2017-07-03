@@ -13,7 +13,12 @@ boxplot(path, outdir = NULL,
 
 \item{ylimits}{(Optional), yaxis limits. numeric vector}
 
-\item{shortenTitle}{(Optional), a Boolean which specifies whether to shorten the title}
+\item{shortenTitle}{(Optional), a Boolean which specifies whether to shorten the title (overriden by titleHeader)}
+
+\item{titleHeader}{(Optional), a string containing the title of the plot (overrides the default)}
+
+\item{gsSubset}{(Optional), for now, just a numeric vector containing indices by which to subset gs for the plot.
+In the future, perhaps a logical expression on "gs" to limit the GatingSet(List) data used, e.g. which(pData(gs)$PatientTreatment == 'HSV529')}
 
 \item{path:}{path to directory holding GatingSetList}
 

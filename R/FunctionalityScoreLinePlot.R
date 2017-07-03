@@ -36,7 +36,8 @@ fs.line.plot <- function(fsData,
                          groupName,
                          addBox=FALSE,
                          ylimits=NULL,
-                         fileSuffix=NULL) {
+                         fileSuffix=NULL,
+                         condition=NULL) {
   p1 <- ggplot2::ggplot(data=fsData, ggplot2::aes_string(x=xaxis, y=yaxis, group=groupName))
   if (addBox) {
     p1 <- p1 + ggplot2::geom_boxplot(inherit.aes=FALSE, ggplot2::aes_string(x=xaxis, y=yaxis),

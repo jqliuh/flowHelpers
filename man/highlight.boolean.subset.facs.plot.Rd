@@ -6,7 +6,8 @@
 \usage{
 highlight.boolean.subset.facs.plot(path, outdir = NULL, individualsCol,
   individual, conditioncol, exp, ctrl, conditioncol2 = ".", parentsubset,
-  boolsubset, xaxis, yaxis, facetorder = NULL, geomTextY = 5)
+  boolsubset, xaxis, yaxis, facetorder = NULL, facetorder2 = NULL,
+  geomTextY = 5)
 }
 \arguments{
 \item{path}{path to directory holding GatingSetList or GatingSet}
@@ -34,6 +35,8 @@ highlight.boolean.subset.facs.plot(path, outdir = NULL, individualsCol,
 \item{(Optional)}{outdir saves image in output directory, if given}
 
 \item{(Optional)}{facetorder the levels of conditioncol (e.g. Antigen) in the order you want displayed}
+
+\item{(Optional)}{facetorder2 the levels of conditioncol2 (e.g. Time) in the order you want displayed}
 }
 \value{
 FACS plot, unless outdir is specified

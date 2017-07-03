@@ -16,6 +16,7 @@
 #' @param sampleGroup (Optional) Specify this if you are providing a flowJoXmlPath and the flowJo sample group is not 3
 #' @param subpopulation (Optional) node name to use for counts, if not 3+
 #' @param stratifyByLevel2 (Optional) additional keyword on which to stratify boxplot data
+#' @param threshold (Optional) where to draw the threshold cutoff line for number of cells, default 25,000
 #' @return Boxplot of cell counts stratified by stratifyByLevel1, unless outdir is specified.
 #' @export boxplot.cell.counts
 #' @keywords QC counts
@@ -40,7 +41,8 @@ boxplot.cell.counts <- function(flowJoXmlPath=NULL,
                                 keywords2import=NULL,
                                 stratifyByLevel1,
                                 stratifyByLevel2=NULL,
-                                batch=NULL
+                                batch=NULL,
+                                threshold=25000
 ) {
   # Check that required arguments are provided
   if (is.null(flowJoXmlPath) & is.null(gatingSetPath) & is.null(gatingSet)) {
@@ -88,8 +90,8 @@ boxplot.cell.counts <- function(flowJoXmlPath=NULL,
 
   # Merge the pData and popStats data tables together.
   annotatedCounts <- merge(flowWorkspace::pData(gs), popStats, by="name")
-  # Add a column labeling points which have less than 25,000 cells
-  annotatedCounts$pointLabels <- ifelse(annotatedCounts$Count < 25000, annotatedCounts$name, as.numeric(NA))
+  # Add a column labeling points which have less than threshold cells
+  annotatedCounts$pointLabels <- ifelse(annotatedCounts$Count < threshold, annotatedCounts$name, as.numeric(NA))
 
   if (!is.null(flowJoXmlPath)) {
     closeWorkspace(ws)

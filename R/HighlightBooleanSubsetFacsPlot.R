@@ -16,6 +16,7 @@
 #' @param yaxis a marker name to plot on the y-axis
 #' @param (Optional) outdir saves image in output directory, if given
 #' @param (Optional) facetorder the levels of conditioncol (e.g. Antigen) in the order you want displayed
+#' @param (Optional) facetorder2 the levels of conditioncol2 (e.g. Time) in the order you want displayed
 #' @return FACS plot, unless outdir is specified
 #' @export
 #' @keywords FACS Plot Polyfunctional Subset
@@ -47,6 +48,7 @@ highlight.boolean.subset.facs.plot <- function(path,
                                                xaxis,
                                                yaxis,
                                                facetorder=NULL,
+                                               facetorder2=NULL,
                                                geomTextY=5
 
 ) {
@@ -99,14 +101,24 @@ highlight.boolean.subset.facs.plot <- function(path,
   plottitle <- paste(c("Difference in cell subset proportions between ", exp, " and ", ctrl), collapse="")
   subtitle1 <- paste(c("Full Boolean Subset: \n       ", possubsetFmtd, "\n       ", negsubsetFmted), collapse="")
 
+  # Order the levels of conditioncol and conditioncol2, facet order is provided
   if (!is.null(facetorder)) {
     flowWorkspace::pData(gsSub)[,conditioncol] <- factor(flowWorkspace::pData(gsSub)[,conditioncol], levels=facetorder)
-    if (conditioncol2 != ".") {
+    if (conditioncol2 != "." && is.null(facetorder2)) {
       flowWorkspace::pData(gsSub)[,conditioncol2] <- factor(flowWorkspace::pData(gsSub)[,conditioncol2])
     }
     boolsubsetPopStatsMerge <- as.data.frame(boolsubsetPopStatsMerge)
     boolsubsetPopStatsMerge[,conditioncol] <- factor(boolsubsetPopStatsMerge[,conditioncol], levels=facetorder)
   }
+  if (!is.null(facetorder2)) {
+    flowWorkspace::pData(gsSub)[,conditioncol2] <- factor(flowWorkspace::pData(gsSub)[,conditioncol2], levels=facetorder2)
+    if (conditioncol != "." && is.null(facetorder)) {
+      flowWorkspace::pData(gsSub)[,conditioncol] <- factor(flowWorkspace::pData(gsSub)[,conditioncol])
+    }
+    boolsubsetPopStatsMerge <- as.data.frame(boolsubsetPopStatsMerge)
+    boolsubsetPopStatsMerge[,conditioncol2] <- factor(boolsubsetPopStatsMerge[,conditioncol2], levels=facetorder2)
+  }
+  
 
   facsplot <- ggcyto::ggcyto(gsSub, ggplot2::aes_string(x=xaxis, y=yaxis), subset=parentsubset) +
     ggplot2::geom_hex(bins = 120) +
