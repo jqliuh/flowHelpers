@@ -33,6 +33,8 @@ boxplot.cell.counts <- function(flowJoXmlPath=NULL, gatingSetPath=NULL,
 \item{batch}{the batch name, required if data is passed in as a gatingSet}
 
 \item{threshold}{(Optional) where to draw the threshold cutoff line for number of cells, default 25,000}
+
+\item{yUpperExpand}{(Optional) This will expand the yaxis to have this upper limit, if applicable.}
 }
 \value{
 Boxplot of cell counts stratified by stratifyByLevel1, unless outdir is specified.

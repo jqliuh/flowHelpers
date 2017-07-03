@@ -17,6 +17,7 @@
 #' @param subpopulation (Optional) node name to use for counts, if not 3+
 #' @param stratifyByLevel2 (Optional) additional keyword on which to stratify boxplot data
 #' @param threshold (Optional) where to draw the threshold cutoff line for number of cells, default 25,000
+#' @param yUpperExpand (Optional) This will expand the yaxis to have this upper limit, if applicable.
 #' @return Boxplot of cell counts stratified by stratifyByLevel1, unless outdir is specified.
 #' @export boxplot.cell.counts
 #' @keywords QC counts
@@ -43,7 +44,7 @@ boxplot.cell.counts <- function(flowJoXmlPath=NULL,
                                 stratifyByLevel2=NULL,
                                 batch=NULL,
                                 threshold=25000,
-                                yMaxPlot=NA
+                                yUpperExpand=NULL
 ) {
   # Check that required arguments are provided
   if (is.null(flowJoXmlPath) & is.null(gatingSetPath) & is.null(gatingSet)) {
@@ -105,6 +106,7 @@ boxplot.cell.counts <- function(flowJoXmlPath=NULL,
   } else {
       tools::file_path_sans_ext(basename(gatingSetPath))
   }
+  yExpandedLims <- if(is.null(yUpperExpand)) { 0 } else { c(0, yUpperExpand)}
   countsBoxplot <- {
     if (is.null(stratifyByLevel2)) {
       plotTitle <- paste(c(subpopulation, " flowCore Counts\nfor ", batchName,
@@ -118,7 +120,7 @@ boxplot.cell.counts <- function(flowJoXmlPath=NULL,
         ggplot2::theme(plot.title=ggplot2::element_text(hjust=0.5, size=30), axis.text=ggplot2::element_text(size=16),
               axis.title=ggplot2::element_text(size=22,face="bold"), legend.position="none", strip.text.x = ggplot2::element_text(size = 15)) +
         ggplot2::geom_text(ggplot2::aes(label=pointLabels), na.rm = TRUE) +
-        ylim(c(0, yMaxPlot))
+        ggplot2::expand_limits(y = yExpandedLims)
       plotCounts
     } else {
       plotTitle <- paste(c(subpopulation, " flowCore Counts\nfor ", batchName,
@@ -133,7 +135,7 @@ boxplot.cell.counts <- function(flowJoXmlPath=NULL,
               axis.title=ggplot2::element_text(size=22,face="bold"), legend.position="none", strip.text.x = ggplot2::element_text(size = 15)) +
         ggplot2::facet_grid(as.formula(paste(c("~ ", "`", stratifyByLevel1, "`"), collapse="")), scales="free_x") +
         ggplot2::geom_text(ggplot2::aes(label = pointLabels), na.rm = TRUE) +
-        ylim(c(0, yMaxPlot))
+        ggplot2::expand_limits(y = yExpandedLims)
       plotCounts
     }
   }
