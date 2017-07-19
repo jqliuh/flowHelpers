@@ -36,6 +36,7 @@
 #'                                    facetorder=c("DMSO", "ESAT-6"))
 #'                                    }
 highlight.boolean.subset.facs.plot <- function(path,
+                                               gsOrGsList=NULL,
                                                outdir=NULL,
                                                individualsCol,
                                                individual,
@@ -55,17 +56,21 @@ highlight.boolean.subset.facs.plot <- function(path,
   # TODO: check all required parameters exist
   library(flowWorkspace) # flowWorkspace::add doesn't seem to work w/o this line
 
-  # Load the saved GatingSetList or GatingSet:
-  loadGSListOrGS <- function (path) {
-    out <- try(flowWorkspace::load_gslist(path))
-    if (class(out) == "try-error") {
-      cat("Caught an error during flowWorkspace::load_gslist, trying flowWorkspace::load_gs.\n")
-      out <- flowWorkspace::load_gs(path)
+  gs <- if(!is.null(gsOrGsList)) {
+    gsOrGsList
+  } else {
+    # Load the saved GatingSetList or GatingSet:
+    loadGSListOrGS <- function (path) {
+      out <- try(flowWorkspace::load_gslist(path))
+      if (class(out) == "try-error") {
+        cat("Caught an error during flowWorkspace::load_gslist, trying flowWorkspace::load_gs.\n")
+        out <- flowWorkspace::load_gs(path)
+      }
+      out
     }
-    out
+    loadGSListOrGS(path)
   }
-  
-  gs <- loadGSListOrGS(path)
+
   metaSub <- flowWorkspace::pData(gs)[flowWorkspace::pData(gs)[individualsCol] == individual & (flowWorkspace::pData(gs)[conditioncol] == exp | flowWorkspace::pData(gs)[conditioncol] == ctrl),]
   gsSub <- gs[rownames(metaSub)]
   # getNodes(gsSub[[1]], path="auto")
