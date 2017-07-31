@@ -14,10 +14,11 @@ run.compass.once <- function(gs,
                              outdir,
                              uniqueruns,
                              grouping,
-                             lineplotgroupby) {
+                             lineplotgroupby,
+                             countFilterThreshold=0) {
   # Create a COMPASSContainer from the GatingSetList.
   CC <- COMPASS::COMPASSContainerFromGatingSet(gs, node=cnode, individual_id=individuals,
-                                      mp=nodemarkermap)
+                                      mp=nodemarkermap, countFilterThreshold=countFilterThreshold)
 
   # Run COMPASS for this unique run
   fit <- COMPASS::COMPASS( CC,
@@ -137,7 +138,8 @@ generic.compass.wrapper <- function(path=NULL,
                                     uniqueruns=NULL,
                                     lineplotxvar=NULL,
                                     iter=40000,
-                                    lineplotgroupby=NULL) {
+                                    lineplotgroupby=NULL,
+                                    countFilterThreshold=0) {
   # Assumptions: pData trt column contains "Treatment" and "Control" labels
   # TODO: run in parallel
   # TODO: test for single run from command line
@@ -193,7 +195,8 @@ generic.compass.wrapper <- function(path=NULL,
                          run=NULL,
                          outdir=outdir,
                          uniqueruns=NULL,
-                         grouping=grouping))
+                         grouping=grouping,
+                         countFilterThreshold=countFilterThreshold))
   } else {
     # Get a list of values identifying unique runs from the "uniqueruns" column, minus the control value
     uniqueRunsList <- unique(meta[meta[,"trt"]!="Control",][,uniqueruns])
@@ -218,7 +221,8 @@ generic.compass.wrapper <- function(path=NULL,
                            outdir=outdir,
                            uniqueruns=uniqueruns,
                            grouping=grouping,
-                           lineplotgroupby=lineplotgroupby))
+                           lineplotgroupby=lineplotgroupby,
+                           countFilterThreshold=countFilterThreshold))
     }
   }
   cat(paste(as.character(Sys.time()), " All COMPASS runs Done\n"))
