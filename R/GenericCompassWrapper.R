@@ -52,6 +52,7 @@ run.compass.once <- function(gs,
   write(paste(paste(cnode, run, sep="\t"), paste(PFS, collapse="\t"), sep="\t"), file=pfsFile, append=TRUE)
 
   plotTitleSuffix <- paste(c(",\n", run, ", ", cnode, " Cells"), collapse="")
+  cytokine_annotation_colors <- c("black", "black", "black", "black", "black", "black", "black")
 
   # Plot a heatmap of the mean probability of response, to visualize differences
   # in expression for each category
@@ -59,7 +60,8 @@ run.compass.once <- function(gs,
       width=800, height=650)
   try(print(plot(fit, grouping, show_rownames = TRUE,
                  main = paste("Heatmap of Mean Probability of Response", plotTitleSuffix, sep=""),
-                 fontsize=14, fontsize_row=13, fontsize_col=11)))
+                 fontsize=14, fontsize_row=13, fontsize_col=11,
+                 cytokine_annotation_colors=cytokine_annotation_colors)))
   dev.off()
 
   # Log scale of previous data, smaller changes show up better
@@ -68,7 +70,8 @@ run.compass.once <- function(gs,
   try(print(plot(fit, grouping, show_rownames = TRUE,
                  measure=COMPASS::PosteriorLogDiff(fit), threshold=0,
                  main = paste("Heatmap of Log Posterior Differences in Response", plotTitleSuffix, sep=""),
-                 fontsize=14, fontsize_row=13, fontsize_col=11)))
+                 fontsize=14, fontsize_row=13, fontsize_col=11,
+                 cytokine_annotation_colors=cytokine_annotation_colors)))
   dev.off()
 
   # If applicable, create line plot of Functionality Score vs. lineplotxvar
