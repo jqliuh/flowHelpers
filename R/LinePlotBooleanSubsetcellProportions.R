@@ -29,9 +29,11 @@ getCatsAndSubsetNames <- function(cats) {
   list("cats"=cats, "subsets"=subsets)
 }
 
+#' lineplot.boolean.subset.proportions
+#' 
 #' This function has a very specific purpose. It produces a paired line plot from a Time 1 to Time 2
 #' of the background corrected proportions for a specified boolean subset. Patient replicates are collapsed
-#' and a T-test is performed across time. The p-value is returned (if plot is saved to outdir) so that FDR can be applied later.
+#' and a T-test is performed across time. T-test and data are returned (if plot is saved to outdir) so that FDR can be applied later.
 #' http://www.annualreviews.org/doi/full/10.1146/annurev.publhealth.23.100901.140546#_i23
 #'
 #' @param ctrlTrtCol Name of the column of metadata which identified whether a sample is treatment or control. The column should contain 2 values.
@@ -42,7 +44,6 @@ getCatsAndSubsetNames <- function(cats) {
 #' @param time1Value timepoint 1 value
 #' @param time2Value timepoint 2 value
 #' @param patientCol Name of column which identifies a unique patient/individual across all times and treatments
-#' 
 #' @param path path to directory holding GatingSetList or GatingSet
 #' @param gsOrGsList
 #' @param outdir

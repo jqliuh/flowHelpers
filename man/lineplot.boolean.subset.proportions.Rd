@@ -2,10 +2,7 @@
 % Please edit documentation in R/LinePlotBooleanSubsetcellProportions.R
 \name{lineplot.boolean.subset.proportions}
 \alias{lineplot.boolean.subset.proportions}
-\title{This function has a very specific purpose. It produces a paired line plot from a Time 1 to Time 2
-of the background corrected proportions for a specified boolean subset. Patient replicates are collapsed
-and a T-test is performed across time. The p-value is returned (if plot is saved to outdir) so that FDR can be applied later.
-http://www.annualreviews.org/doi/full/10.1146/annurev.publhealth.23.100901.140546#_i23}
+\title{lineplot.boolean.subset.proportions}
 \usage{
 lineplot.boolean.subset.proportions(path, gsOrGsList = NULL, outdir = NULL,
   exp, ctrl, parentsubset, boolsubset, ylimits = NULL, shortenTitle = FALSE,
@@ -35,7 +32,7 @@ lineplot.boolean.subset.proportions(path, gsOrGsList = NULL, outdir = NULL,
 \description{
 This function has a very specific purpose. It produces a paired line plot from a Time 1 to Time 2
 of the background corrected proportions for a specified boolean subset. Patient replicates are collapsed
-and a T-test is performed across time. The p-value is returned (if plot is saved to outdir) so that FDR can be applied later.
+and a T-test is performed across time. T-test and data are returned (if plot is saved to outdir) so that FDR can be applied later.
 http://www.annualreviews.org/doi/full/10.1146/annurev.publhealth.23.100901.140546#_i23
 }
 \examples{
