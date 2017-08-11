@@ -240,9 +240,9 @@ lineplot.boolean.subset.proportions <- function(path,
     # Save plot to disk
     # Rewrite possubset as one string
     possubset4file <- paste(lapply(possubset, function(x) {splt <- strsplit(x, "/")[[1]]; splt[length(splt)][[1]]}), collapse="")
-    ext <- pngORsvg #if(pngORsvg == "png") {".png" } else { ".svg" }
+    ext <- pngORsvg #if(pngORsvg == "png") {"png" } else { "svg" }
     ggplot2::ggsave(filename=paste(c("Lineplot_", parentsubset, "_", exp, "_", possubset4file, ".", ext), collapse=""),
-                    plot=plot, path=outdir, device=if(pngORsvg == "png") {".png" } else { grDevices::svg() },
+                    plot=plot, path=outdir, device=if(pngORsvg == "png") {"png" } else { grDevices::svg() },
                     width=8.5, height=6, units="in")
     list(ttest = t_test,
          t1Data = counts4boxplotsMerge_4Test$`CountAsProportionDiffPos.1`,

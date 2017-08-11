@@ -180,7 +180,7 @@ highlight.boolean.subset.facs.plot <- function(path,
     possubset <- paste(lapply(possubset, function(x) {splt <- strsplit(x, "/")[[1]]; splt[length(splt)][[1]]}), collapse="")
     ext <- pngORsvg # if(pngORsvg == "png") {"png" } else { "svg" }
     ggplot2::ggsave(filename=paste(c("FACSplot_", individualsCol, "_", individual, "_", parentsubset, "_", exp, "_", possubset, ".", ext), collapse=""),
-                    plot=facsplot, path=outdir, device=if(pngORsvg == "png") {".png" } else { grDevices::svg() }, width=width, height=8, units="in")
+                    plot=facsplot, path=outdir, device=if(pngORsvg == "png") {"png" } else { grDevices::svg() }, width=width, height=8, units="in")
   } else {
     facsplot
   }
