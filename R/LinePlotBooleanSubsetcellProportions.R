@@ -119,6 +119,11 @@ lineplot.boolean.subset.proportions <- function(path,
     loadGSListOrGS(path)
   }
   
+  if(!is.null(gsSubset)) {
+    gs <- gs[gsSubset]
+    # gs <- eval(substitute(gsSubset), gs, parent.frame()) 
+  }
+  
   # Add a node with boolsubset-only cells
   call <- substitute(flowWorkspace::booleanFilter(v), list(v = as.symbol(boolsubset)))
   g <- eval(call)
