@@ -4,10 +4,14 @@ swap <- function(vec, from, to) {
   return(tmp)
 }
 
-# This function returns the formatted category name for each row of the categories matrix
-# and the ordered categories matrix
-# Note that it ORDERS the categories matrix columns first
-# Used by mergeMatricesForPlotCOMPASSResultStack function
+#' Format COMPASS Categories
+#' 
+#' This function returns the formatted category name for each row of the categories matrix
+#' and the ordered categories matrix
+#' Note that it ORDERS the categories matrix columns first
+#' Used by mergeMatricesForPlotCOMPASSResultStack function
+#' 
+#' @export
 getCatsAndSubsetNames <- function(cats) {
   # First, re-arrange the columns of the cats data frame to a fixed order (i.e., sorted)
   # This avoids situations where the same category gets called two different names
