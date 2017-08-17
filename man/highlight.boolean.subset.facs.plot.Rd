@@ -7,7 +7,8 @@
 highlight.boolean.subset.facs.plot(path, gsOrGsList = NULL, outdir = NULL,
   individualsCol, individual, conditioncol, exp, ctrl, conditioncol2 = ".",
   parentsubset, boolsubset, xaxis, yaxis, facetorder = NULL,
-  facetorder2 = NULL, geomTextY = 5, geomTextX = 200, pngORsvg = "png")
+  facetorder2 = NULL, geomTextY = 5, geomTextX = 200, pngORsvg = "png",
+  width = NULL)
 }
 \arguments{
 \item{path}{path to directory holding GatingSetList or GatingSet}

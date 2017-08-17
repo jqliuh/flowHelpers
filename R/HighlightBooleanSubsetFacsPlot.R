@@ -15,6 +15,7 @@
 #' @param boolsubset the full boolean subset to be used by booleanfilter()
 #' @param xaxis a marker name to plot on the x-axis
 #' @param yaxis a marker name to plot on the y-axis
+#' @param width width, in inches, of the plot
 #' @param (Optional) outdir saves image in output directory, if given
 #' @param (Optional) facetorder the levels of conditioncol (e.g. Antigen) in the order you want displayed
 #' @param (Optional) facetorder2 the levels of conditioncol2 (e.g. Time) in the order you want displayed
@@ -41,23 +42,24 @@
 #'                                    facetorder=c("DMSO", "ESAT-6"))
 #'                                    }
 highlight.boolean.subset.facs.plot <- function(path,
-                                                   gsOrGsList=NULL,
-                                                   outdir=NULL,
-                                                   individualsCol,
-                                                   individual,
-                                                   conditioncol,
-                                                   exp,
-                                                   ctrl,
-                                                   conditioncol2=".",
-                                                   parentsubset,
-                                                   boolsubset,
-                                                   xaxis,
-                                                   yaxis,
-                                                   facetorder=NULL,
-                                                   facetorder2=NULL,
-                                                   geomTextY=5,
-                                                   geomTextX=200,
-                                                   pngORsvg="png"
+                                               gsOrGsList=NULL,
+                                               outdir=NULL,
+                                               individualsCol,
+                                               individual,
+                                               conditioncol,
+                                               exp,
+                                               ctrl,
+                                               conditioncol2=".",
+                                               parentsubset,
+                                               boolsubset,
+                                               xaxis,
+                                               yaxis,
+                                               facetorder=NULL,
+                                               facetorder2=NULL,
+                                               geomTextY=5,
+                                               geomTextX=200,
+                                               pngORsvg="png",
+                                               width=NULL
                                                    
 ) {
   # TODO: check all required parameters exist
@@ -172,7 +174,7 @@ highlight.boolean.subset.facs.plot <- function(path,
                    legend.title=ggplot2::element_text(size=13),
                    legend.text=ggplot2::element_text(size=10))
   
-  width <- if (conditioncol2 == ".") { 5 } else { 9 }
+  width <- if (is.null(width)) { if (conditioncol2 == ".") { 5 } else { 9 } } else { width }
   
   if (!is.null(outdir)) {
     # Simplify subset for file name
