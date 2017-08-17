@@ -84,11 +84,12 @@ highlight.boolean.subset.facs.plot <- function(path,
   
   call <- substitute(flowWorkspace::booleanFilter(v), list(v = as.symbol(boolsubset)))
   g <- eval(call)
-  flowWorkspace::add(gs, g, parent = parentsubset, name=boolsubset)
+  boolsubsetName <- gsub("/", ":", boolsubset)
+  flowWorkspace::add(gs, g, parent = parentsubset, name=boolsubsetName)
   flowWorkspace::getNodes(gsSub[[1]], path="auto")
-  flowWorkspace::recompute(gsSub, boolsubset)
+  flowWorkspace::recompute(gsSub, boolsubsetName)
   # Obtain proportion of boolsubset cells and add as column to PopStats
-  boolsubsetPopStats <- flowWorkspace::getPopStats(gsSub, flowJo=FALSE, subpopulations=c(boolsubset))
+  boolsubsetPopStats <- flowWorkspace::getPopStats(gsSub, flowJo=FALSE, subpopulations=c(boolsubsetName))
   
   gsSubMetaData <- flowWorkspace::pData(gsSub)[,2:length(colnames(flowWorkspace::pData(gsSub)))]
   gsSubMetaData <- cbind(gsSubMetaData, rownames(gsSubMetaData))
@@ -98,6 +99,8 @@ highlight.boolean.subset.facs.plot <- function(path,
   boolsubsetPopStatsMerge <- merge(x=boolsubsetPopStats[, c("name", "Population", "Count", "ParentCount")], y=gsSubMetaData[, gsSubMetaDataCols], by.x="name", by.y="row.names")
   
   library(data.table)
+  byCols <- c(conditioncol, conditioncol2)
+  byCols <- unique(byCols[byCols != "."])
   boolsubsetPopStatsMergeCollapsed <- rbind(boolsubsetPopStatsMerge[, {
     # cols2makeUnique <- .BY #.BY[, c("Day", "Treatment")]
     # cols2makeUnique <- unlist(lapply(cols2makeUnique, function(x) {
@@ -113,7 +116,7 @@ highlight.boolean.subset.facs.plot <- function(path,
     #cbind(.BY, data.table(t(unlist(cols2Sum))))
     #cbind(data.table(t(unlist(cols2makeUnique))), data.table(t(unlist(cols2Sum))))
   },
-  by=c("Day", "Treatment")])
+  by=byCols])
   
   boolsubsetPopStatsMergeCollapsed[, "Proportion"] <- boolsubsetPopStatsMergeCollapsed[, "Count"] / boolsubsetPopStatsMergeCollapsed[, "ParentCount"]
   boolsubsetPopStatsMergeCollapsed[, "Percent"] <- sapply(formatC(base::round(with(boolsubsetPopStatsMergeCollapsed, Count / ParentCount) * 100, 3), 3, format="f"), function(x) paste(x, "%", sep=""), USE.NAMES=FALSE)
@@ -135,7 +138,7 @@ highlight.boolean.subset.facs.plot <- function(path,
   plottitle <- paste(c("Difference in cell subset proportions between ", exp, " and ", ctrl), collapse="")
   subtitle1 <- paste(c("Full Boolean Subset: \n       ", possubsetFmtd, "\n       ", negsubsetFmted), collapse="")
   
-  # Order the levels of conditioncol and conditioncol2, facet order is provided
+  # Order the levels of conditioncol and conditioncol2, if facet order is provided
   if (!is.null(facetorder)) {
     flowWorkspace::pData(gsSub)[,conditioncol] <- factor(flowWorkspace::pData(gsSub)[,conditioncol], levels=facetorder)
     if (conditioncol2 != "." && is.null(facetorder2)) {
@@ -158,7 +161,7 @@ highlight.boolean.subset.facs.plot <- function(path,
     ggcyto::labs_cyto("marker") +
     ggplot2::facet_grid(stats::as.formula(paste(conditioncol, "~", conditioncol2))) +
     ggplot2::labs(title=facstitle, subtitle=subtitle1) +
-    ggcyto::geom_overlay(boolsubset, col="red", size=0.2, alpha=0.7) +
+    ggcyto::geom_overlay(boolsubsetName, col="red", size=0.2, alpha=0.7) +
     ggplot2::geom_text(data=boolsubsetPopStatsMergeCollapsed, ggplot2::aes_string(x=get("geomTextX"), y=get("geomTextY"), label="Percent"),
                        colour="black", parse=FALSE, inherit.aes=FALSE) +
     ggplot2::theme(plot.title=ggplot2::element_text(vjust=-0.8, hjust=0.5, size=19),
