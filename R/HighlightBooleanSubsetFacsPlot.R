@@ -165,14 +165,14 @@ highlight.boolean.subset.facs.plot <- function(path,
     ggplot2::labs(title=facstitle, subtitle=subtitle1) +
     ggcyto::geom_overlay(boolsubsetName, col="red", size=0.2, alpha=0.7) +
     ggplot2::geom_text(data=boolsubsetPopStatsMergeCollapsed, ggplot2::aes_string(x=get("geomTextX"), y=get("geomTextY"), label="Percent"),
-                       colour="black", parse=FALSE, inherit.aes=FALSE) +
+                       colour="black", parse=FALSE, inherit.aes=FALSE, size=5) +
     ggplot2::theme(plot.title=ggplot2::element_text(vjust=-0.8, hjust=0.5, size=19),
                    plot.subtitle=ggplot2::element_text(size=12),
                    axis.text=ggplot2::element_text(size=14),
                    axis.title=ggplot2::element_text(size=18),
                    strip.text=ggplot2::element_text(size=16),
-                   legend.title=ggplot2::element_text(size=13),
-                   legend.text=ggplot2::element_text(size=10))
+                   legend.title=ggplot2::element_text(size=15),
+                   legend.text=ggplot2::element_text(size=12))
   
   width <- if (is.null(width)) { if (conditioncol2 == ".") { 5 } else { 9 } } else { width }
   

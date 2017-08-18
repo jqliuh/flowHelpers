@@ -35,6 +35,8 @@ highlight.boolean.subset.facs.plot(path, gsOrGsList = NULL, outdir = NULL,
 
 \item{yaxis}{a marker name to plot on the y-axis}
 
+\item{width}{width, in inches, of the plot}
+
 \item{(Optional)}{outdir saves image in output directory, if given}
 
 \item{(Optional)}{facetorder the levels of conditioncol (e.g. Antigen) in the order you want displayed}
