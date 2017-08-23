@@ -1,6 +1,6 @@
-#' Overlay and Highlight Polyfunctional Cell Subsets on a FACS plot
+#' Overlay and Highlight Polyfunctional Cell Subsets on a Flow plot
 #'
-#' Defines a function to Overlay and Highlight Polyfunctional Cell Subsets on a FACS plot
+#' Defines a function to Overlay and Highlight Polyfunctional Cell Subsets on a Flow plot
 #' This function assumes there are two columns, conditioncol and conditioncol2, upon which you are stratifying the plots
 #'
 #' @param path path to directory holding GatingSetList or GatingSet
@@ -10,7 +10,7 @@
 #' @param conditioncol name of the column that defines the main experimental condition, e.g. Antigen
 #' @param exp experimental value in conditioncol, e.g. ESAT-6
 #' @param ctrl control value in conditioncol, e.g. DMSO
-#' @param conditioncol2 second condition on which to stratify FACS plots
+#' @param conditioncol2 second condition on which to stratify Flow plots
 #' @param parentsubset unique name of parent node to use for plots
 #' @param boolsubset the full boolean subset to be used by booleanfilter()
 #' @param xaxis a marker name to plot on the x-axis
@@ -19,16 +19,16 @@
 #' @param (Optional) outdir saves image in output directory, if given
 #' @param (Optional) facetorder the levels of conditioncol (e.g. Antigen) in the order you want displayed
 #' @param (Optional) facetorder2 the levels of conditioncol2 (e.g. Time) in the order you want displayed
-#' @return FACS plot, unless outdir is specified
+#' @return Flow plot, unless outdir is specified
 #' @import data.table
 #' @import flowWorkspace
 #' @import grDevices
 #' @import svglite
 #' @export
-#' @keywords FACS Plot Polyfunctional Subset
+#' @keywords Flow Plot Polyfunctional Subset
 #' @examples
 #' \dontrun{
-#' highlight.boolean.subset.facs.plot(path="/home/path/to/GatingSetListAllBatches",
+#' highlight.boolean.subset.flow.plot(path="/home/path/to/GatingSetListAllBatches",
 #'                                    individualsCol="PTID",
 #'                                    individual=12345678,
 #'                                    conditioncol="Antigen",
@@ -41,7 +41,7 @@
 #'                                    yaxis="IFNg",
 #'                                    facetorder=c("DMSO", "ESAT-6"))
 #'                                    }
-highlight.boolean.subset.facs.plot <- function(path,
+highlight.boolean.subset.flow.plot <- function(path,
                                                gsOrGsList=NULL,
                                                outdir=NULL,
                                                individualsCol,
@@ -123,7 +123,7 @@ highlight.boolean.subset.facs.plot <- function(path,
   boolsubsetPopStatsMergeCollapsed[, "Proportion"] <- boolsubsetPopStatsMergeCollapsed[, "Count"] / boolsubsetPopStatsMergeCollapsed[, "ParentCount"]
   boolsubsetPopStatsMergeCollapsed[, "Percent"] <- sapply(formatC(base::round(with(boolsubsetPopStatsMergeCollapsed, Count / ParentCount) * 100, 3), 3, format="f"), function(x) paste(x, "%", sep=""), USE.NAMES=FALSE)
   
-  facstitle <- if (conditioncol2 == ".") {
+  flowtitle <- if (conditioncol2 == ".") {
     paste(c(individualsCol, " ", as.character(individual), ", ", parentsubset, " cells\nResponse to ", exp), collapse="")
   } else {
     paste(c(individualsCol, " ", as.character(individual), ", ", parentsubset, " cells\nResponse to ", exp, " vs ", conditioncol2), collapse="")
@@ -158,11 +158,11 @@ highlight.boolean.subset.facs.plot <- function(path,
     boolsubsetPopStatsMergeCollapsed[,conditioncol2] <- factor(boolsubsetPopStatsMergeCollapsed[,conditioncol2], levels=facetorder2)
   }
   
-  facsplot <- ggcyto::ggcyto(gsSub, ggplot2::aes_string(x=xaxis, y=yaxis), subset=parentsubset) +
+  flowplot <- ggcyto::ggcyto(gsSub, ggplot2::aes_string(x=xaxis, y=yaxis), subset=parentsubset) +
     ggplot2::geom_hex(bins = 120) +
     ggcyto::labs_cyto("marker") +
     ggplot2::facet_grid(stats::as.formula(paste(conditioncol, "~", conditioncol2))) +
-    ggplot2::labs(title=facstitle, subtitle=subtitle1) +
+    ggplot2::labs(title=flowtitle, subtitle=subtitle1) +
     ggcyto::geom_overlay(boolsubsetName, col="red", size=0.2, alpha=0.7) +
     ggplot2::geom_text(data=boolsubsetPopStatsMergeCollapsed, ggplot2::aes_string(x=get("geomTextX"), y=get("geomTextY"), label="Percent"),
                        colour="black", parse=FALSE, inherit.aes=FALSE, size=5) +
@@ -184,9 +184,9 @@ highlight.boolean.subset.facs.plot <- function(path,
     # Rewrite as one string
     possubset <- paste(lapply(possubset, function(x) {splt <- strsplit(x, "/")[[1]]; splt[length(splt)][[1]]}), collapse="")
     ext <- pngORsvg # if(pngORsvg == "png") {"png" } else { "svg" }
-    ggplot2::ggsave(filename=paste(c("FACSplot_", individualsCol, "_", individual, "_", parentsubset, "_", exp, "_", possubset, ".", ext), collapse=""),
-                    plot=facsplot, path=outdir, device=if(pngORsvg == "png") {"png" } else { grDevices::svg() }, width=width, height=8, units="in")
+    ggplot2::ggsave(filename=paste(c("FlowPlot_", individualsCol, "_", individual, "_", parentsubset, "_", exp, "_", possubset, ".", ext), collapse=""),
+                    plot=flowplot, path=outdir, device=if(pngORsvg == "png") {"png" } else { grDevices::svg() }, width=width, height=8, units="in")
   } else {
-    facsplot
+    flowplot
   }
 }
