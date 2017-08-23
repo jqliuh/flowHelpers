@@ -43,7 +43,7 @@ fs.plot <- function(gsOrGsListOrPath,
   }
   
   cr <- if(class(compassResultOrPath) == "COMPASSResult") {
-    cr
+    compassResultOrPath
   } else {
     try(if(!(class(compassResultOrPath) == "character")) stop("compassResultOrPath must be a COMPASSResult object or path to a COMPASSResult rds file on disk"))
     # Load the saved COMPASSResult
