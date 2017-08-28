@@ -73,6 +73,7 @@ fs.plot <- function(gsOrGsListOrPath,
   
   # Wilcox rank sum test between groups
   testResult <- if(length(stratifyBy) == 1) {
+    fsTable[,stratifyBy] <- as.factor(fsTable[,get(stratifyBy)])
     tr <- coin::wilcox_test(FunctionalityScore ~ get(stratifyBy), data=fsTable)
     if(plotWilcox) {
       p <- p + ggplot2::geom_text(label = paste0("p = ", signif(coin::pvalue(tr), 3)),
