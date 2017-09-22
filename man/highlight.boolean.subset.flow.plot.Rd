@@ -8,12 +8,15 @@ highlight.boolean.subset.flow.plot(path, gsOrGsList = NULL, outdir = NULL,
   individualsCol, individual, conditioncol, exp, ctrl, conditioncol2 = ".",
   parentsubset, boolsubset, xaxis, yaxis, facetorder = NULL,
   facetorder2 = NULL, geomTextY = 5, geomTextX = 200, pngORsvg = "png",
-  width = NULL)
+  width = NULL, overlayDotSize = 0.4, themeBaseSize = 18,
+  stripLegendGridAxesTitle = FALSE)
 }
 \arguments{
 \item{path}{path to directory holding GatingSetList or GatingSet}
 
 \item{gsOrGsList}{GatingSet or GatingSetList object}
+
+\item{outdir}{(Optional) saves image in output directory, if given}
 
 \item{individualsCol}{column which defines individual}
 
@@ -35,13 +38,11 @@ highlight.boolean.subset.flow.plot(path, gsOrGsList = NULL, outdir = NULL,
 
 \item{yaxis}{a marker name to plot on the y-axis}
 
+\item{facetorder}{(Optional) the levels of conditioncol (e.g. Antigen) in the order you want displayed}
+
+\item{facetorder2}{(Optional) the levels of conditioncol2 (e.g. Time) in the order you want displayed}
+
 \item{width}{width, in inches, of the plot}
-
-\item{(Optional)}{outdir saves image in output directory, if given}
-
-\item{(Optional)}{facetorder the levels of conditioncol (e.g. Antigen) in the order you want displayed}
-
-\item{(Optional)}{facetorder2 the levels of conditioncol2 (e.g. Time) in the order you want displayed}
 }
 \value{
 Flow plot, unless outdir is specified

@@ -16,9 +16,11 @@
 #' @param xaxis a marker name to plot on the x-axis
 #' @param yaxis a marker name to plot on the y-axis
 #' @param width width, in inches, of the plot
-#' @param (Optional) outdir saves image in output directory, if given
-#' @param (Optional) facetorder the levels of conditioncol (e.g. Antigen) in the order you want displayed
-#' @param (Optional) facetorder2 the levels of conditioncol2 (e.g. Time) in the order you want displayed
+#' @param outdir (Optional) saves image in output directory, if given
+#' @param facetorder (Optional) the levels of conditioncol (e.g. Antigen) in the order you want displayed
+#' @param facetorder2 (Optional) the levels of conditioncol2 (e.g. Time) in the order you want displayed
+#' @param overlayDotSize
+#' @param themeBaseSize
 #' @return Flow plot, unless outdir is specified
 #' @import data.table
 #' @import flowWorkspace
@@ -59,7 +61,10 @@ highlight.boolean.subset.flow.plot <- function(path,
                                                geomTextY=5,
                                                geomTextX=200,
                                                pngORsvg="png",
-                                               width=NULL
+                                               width=NULL,
+                                               overlayDotSize=0.4,
+                                               themeBaseSize=18,
+                                               stripLegendGridAxesTitle=FALSE
                                                    
 ) {
   # TODO: check all required parameters exist
@@ -158,21 +163,34 @@ highlight.boolean.subset.flow.plot <- function(path,
     boolsubsetPopStatsMergeCollapsed[,conditioncol2] <- factor(boolsubsetPopStatsMergeCollapsed[,conditioncol2], levels=facetorder2)
   }
   
-  flowplot <- ggcyto::ggcyto(gsSub, ggplot2::aes_string(x=xaxis, y=yaxis), subset=parentsubset) +
+  flowplot <- ggcyto::ggcyto(gsSub, ggplot2::aes_string(x=xaxis, y=yaxis, alpha=0.5), subset=parentsubset) +
     ggplot2::geom_hex(bins = 120) +
     ggcyto::labs_cyto("marker") +
     ggplot2::facet_grid(stats::as.formula(paste(conditioncol, "~", conditioncol2))) +
-    ggplot2::labs(title=flowtitle, subtitle=subtitle1) +
-    ggcyto::geom_overlay(boolsubsetName, col="red", size=0.2, alpha=0.7) +
+    ggcyto::geom_overlay(boolsubsetName, col="red", size=overlayDotSize, alpha=1) +
     ggplot2::geom_text(data=boolsubsetPopStatsMergeCollapsed, ggplot2::aes_string(x=get("geomTextX"), y=get("geomTextY"), label="Percent"),
-                       colour="black", parse=FALSE, inherit.aes=FALSE, size=5) +
-    ggplot2::theme(plot.title=ggplot2::element_text(vjust=-0.8, hjust=0.5, size=19),
-                   plot.subtitle=ggplot2::element_text(size=12),
-                   axis.text=ggplot2::element_text(size=14),
-                   axis.title=ggplot2::element_text(size=18),
-                   strip.text=ggplot2::element_text(size=16),
-                   legend.title=ggplot2::element_text(size=15),
-                   legend.text=ggplot2::element_text(size=12))
+                       colour="black", parse=FALSE, inherit.aes=FALSE, size=max(1, themeBaseSize-13)) +
+    ggplot2::scale_alpha(guide = 'none') +
+    ggplot2::theme_set(ggplot2::theme_gray(base_size = themeBaseSize))
+    # ggplot2::theme(plot.title=ggplot2::element_text(vjust=-0.8, hjust=0.5, size=19),
+    #                plot.subtitle=ggplot2::element_text(size=12),
+    #                axis.text=ggplot2::element_text(size=14),
+    #                axis.title=ggplot2::element_text(size=18),
+    #                strip.text=ggplot2::element_text(size=16),
+    #                legend.title=ggplot2::element_text(size=15),
+    #                legend.text=ggplot2::element_text(size=12))
+  
+  if(stripLegendGridAxesTitle) {
+    flowplot <- flowplot + 
+      ggplot2::theme(panel.grid.major = ggplot2::element_blank(), panel.grid.minor = ggplot2::element_blank(),
+            panel.background = ggplot2::element_blank(), axis.line = ggplot2::element_line(colour = "black"),
+            legend.position="none", axis.text=ggplot2::element_blank(), axis.ticks=ggplot2::element_blank()) +
+      ggplot2::labs(title="")
+    # TODO: subset label seems to be plotted by default, not sure how to override it so title is not allocated space
+  } else {
+    flowplot <- flowplot + 
+      ggplot2::labs(title=flowtitle, subtitle=subtitle1)
+  }
   
   width <- if (is.null(width)) { if (conditioncol2 == ".") { 5 } else { 9 } } else { width }
   
