@@ -31,6 +31,7 @@
 #' @import ggplot2
 #' @import coin
 #' @import ggsignif
+#' @export
 #' @examples 
 #' \dontrun{
 #' ifngResults <- cytokine.specific.subset.comparison(compassResultOrPath=myCompassResult,
