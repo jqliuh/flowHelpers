@@ -5,7 +5,9 @@
 \title{Plot of Functionality Score vs some other axis}
 \usage{
 fs.plot(gsOrGsListOrPath, compassResultOrPath, stratifyBy, ylims = NULL,
-  outdir = NULL, plotTextExtra = "", plotWilcox = FALSE)
+  outdir = NULL, plotTextExtra = "", plotWilcox = FALSE,
+  themeBaseSize = 18, removeGridAndBg = FALSE, showTitle = TRUE,
+  showSignificanceBracket = TRUE)
 }
 \arguments{
 \item{gsOrGsListOrPath}{Either a GatingSet, a GatingSetList, or path to one of these objects on disk}

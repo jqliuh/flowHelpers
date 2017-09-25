@@ -5,6 +5,10 @@
 #' @param plotTextExtra Extra text (e.g. "CD4+, Peptide Pool 1") to place in plot title and filename. Commas and spaces, etc will be removed for filename.
 #' @param outdir If given, plot will be saved to this directory instead of being returned in a list along with plot data
 #' @param stratifyBy Character vector of metadata columns to stratify plot by
+#' @param themeBaseSize
+#' @param removeGridAndBg
+#' @param showTitle
+#' @param showSignificanceBracket
 #' @export
 #' @import coin
 #' @import COMPASS
@@ -25,7 +29,11 @@ fs.plot <- function(gsOrGsListOrPath,
                     ylims=NULL,
                     outdir=NULL,
                     plotTextExtra="",
-                    plotWilcox=FALSE) {
+                    plotWilcox=FALSE,
+                    themeBaseSize=18,
+                    removeGridAndBg=FALSE,
+                    showTitle=TRUE,
+                    showSignificanceBracket=TRUE) {
   gs <- if(class(gsOrGsListOrPath) == "GatingSet" || class(gsOrGsListOrPath) == "GatingSetList") {
     gsOrGsListOrPath
   } else {
@@ -66,10 +74,17 @@ fs.plot <- function(gsOrGsListOrPath,
   p <- p + ggplot2::geom_boxplot(inherit.aes=FALSE, ggplot2::aes_string(x=xaxis, y=yaxis), colour = "black", outlier.shape = NA)
   p <- p +
     ggplot2::geom_jitter() +
-    ggplot2::labs(title=paste0("Functionality Score Boxplot\nBy ", stratifyBy, "\n", plotTextExtra),
-                  x=xaxis, y=yaxis) +
-    ggplot2::theme_set(ggplot2::theme_gray(base_size = 21)) +
+    ggplot2::labs(x=xaxis, y=yaxis) +
+    ggplot2::theme_set(ggplot2::theme_gray(base_size = themeBaseSize)) +
     ggplot2::coord_cartesian(ylim=ylimits)
+  if(showTitle) {
+    title <- paste0("Functionality Score Boxplot\nBy ", stratifyBy, "\n", plotTextExtra)
+    p <- p + ggplot2::labs(title=title)
+  }
+  if(removeGridAndBg) {
+    p <- p + ggplot2::theme(panel.grid.major = ggplot2::element_blank(), panel.grid.minor = ggplot2::element_blank(),
+                              panel.background = ggplot2::element_blank(), axis.line = element_line(colour = "black"))
+  }
   
   # Wilcox rank sum test between groups
   testResult <- if(length(stratifyBy) == 1) {
@@ -82,6 +97,13 @@ fs.plot <- function(gsOrGsListOrPath,
                                   colour="black",
                                   parse=FALSE,
                                   size=5)
+    }
+    
+    if(showSignificanceBracket) {
+      y_Bracket <- max(fsTable$FunctionalityScore)*1.04
+      p <- p + ggsignif::geom_signif(annotation=paste0("p=", signif(coin::pvalue(tr), digits=3)),
+                                       y_position=y_Bracket, xmin=0.85, xmax=2.15, 
+                                       tip_length = c(0.01, 0.01))
     }
     tr
   }
