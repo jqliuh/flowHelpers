@@ -21,6 +21,8 @@
 #' @param facetorder2 (Optional) the levels of conditioncol2 (e.g. Time) in the order you want displayed
 #' @param overlayDotSize
 #' @param themeBaseSize
+#' @param xlims
+#' @param ylims
 #' @return Flow plot, unless outdir is specified
 #' @import data.table
 #' @import flowWorkspace
@@ -64,7 +66,9 @@ highlight.boolean.subset.flow.plot <- function(path,
                                                width=NULL,
                                                overlayDotSize=0.4,
                                                themeBaseSize=18,
-                                               stripLegendGridAxesTitle=FALSE
+                                               stripLegendGridAxesTitle=FALSE,
+                                               xlims=NULL,
+                                               ylims=NULL
                                                    
 ) {
   # TODO: check all required parameters exist
@@ -179,7 +183,12 @@ highlight.boolean.subset.flow.plot <- function(path,
     #                strip.text=ggplot2::element_text(size=16),
     #                legend.title=ggplot2::element_text(size=15),
     #                legend.text=ggplot2::element_text(size=12))
-  
+  if(!is.null(xlims)) {
+    flowplot <- flowplot + ggplot2::coord_cartesian(xlim = xlims) 
+  }
+  if(!is.null(ylims)) {
+    flowplot <- flowplot +  ggplot2::coord_cartesian(ylim = ylims) 
+  }
   if(stripLegendGridAxesTitle) {
     flowplot <- flowplot + 
       ggplot2::theme(panel.grid.major = ggplot2::element_blank(), panel.grid.minor = ggplot2::element_blank(),
@@ -191,7 +200,7 @@ highlight.boolean.subset.flow.plot <- function(path,
     flowplot <- flowplot + 
       ggplot2::labs(title=flowtitle, subtitle=subtitle1)
   }
-  
+
   width <- if (is.null(width)) { if (conditioncol2 == ".") { 5 } else { 9 } } else { width }
   
   if (!is.null(outdir)) {

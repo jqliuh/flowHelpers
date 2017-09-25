@@ -9,7 +9,7 @@ highlight.boolean.subset.flow.plot(path, gsOrGsList = NULL, outdir = NULL,
   parentsubset, boolsubset, xaxis, yaxis, facetorder = NULL,
   facetorder2 = NULL, geomTextY = 5, geomTextX = 200, pngORsvg = "png",
   width = NULL, overlayDotSize = 0.4, themeBaseSize = 18,
-  stripLegendGridAxesTitle = FALSE)
+  stripLegendGridAxesTitle = FALSE, xlims = NULL, ylims = NULL)
 }
 \arguments{
 \item{path}{path to directory holding GatingSetList or GatingSet}
