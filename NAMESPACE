@@ -2,6 +2,7 @@
 
 export(boxplot.boolean.subset.proportions)
 export(boxplot.cell.counts)
+export(compass.subset.comparisons)
 export(cytokine.specific.subset.comparison)
 export(fs.line.plot)
 export(fs.plot)

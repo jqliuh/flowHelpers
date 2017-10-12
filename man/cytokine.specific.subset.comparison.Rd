@@ -28,7 +28,7 @@ cytokine.specific.subset.comparison(compassResultOrPath, gsOrGsListOrPath,
 
 \item{controlAntigen}{}
 
-\item{stratifyBy}{column of pData to straify plot by}
+\item{stratifyBy}{column of pData to stratify plot by}
 
 \item{showSignificanceBracket}{(optional)}
 
@@ -54,7 +54,7 @@ Additionally stratify by a column in the sample metadata.
 Perform a wilcoxon rank sum test for each subset group.
 }
 \details{
-It is assumed that any given GatingSetlist will have the same gates across all GatingSets within.
+It is assumed that any given GatingSetList will have the same gates across all GatingSets within.
 }
 \examples{
 \dontrun{
@@ -63,8 +63,8 @@ ifngResults <- cytokine.specific.subset.comparison(compassResultOrPath=myCompass
        cytokineOfInterestGate="IFNg+",
        parentSubset="4+",
        antigenCol="Antigen",
-       stimAntigen"Peptide Pool 1",
-       controlAntigen"DMSO",
+       stimAntigen="Peptide Pool 1",
+       controlAntigen="DMSO",
        stratifyBy="Status",
        showSignificanceBracket=TRUE,
        showTitle=FALSE,

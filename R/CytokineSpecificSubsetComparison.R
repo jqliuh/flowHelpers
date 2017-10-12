@@ -4,7 +4,7 @@
 #' Additionally stratify by a column in the sample metadata.
 #' Perform a wilcoxon rank sum test for each subset group.
 #' 
-#' It is assumed that any given GatingSetlist will have the same gates across all GatingSets within.
+#' It is assumed that any given GatingSetList will have the same gates across all GatingSets within.
 #'
 #' @param compassResultOrPath 
 #' @param gsOrGsListOrPath 
@@ -14,7 +14,7 @@
 #' @param antigenCol 
 #' @param stimAntigen 
 #' @param controlAntigen 
-#' @param stratifyBy column of pData to straify plot by
+#' @param stratifyBy column of pData to stratify plot by
 #' @param showSignificanceBracket (optional)
 #' @param showTitle (optional)
 #' @param sampleIDCol
@@ -39,8 +39,8 @@
 #'        cytokineOfInterestGate="IFNg+",
 #'        parentSubset="4+",
 #'        antigenCol="Antigen",
-#'        stimAntigen"Peptide Pool 1",
-#'        controlAntigen"DMSO",
+#'        stimAntigen="Peptide Pool 1",
+#'        controlAntigen="DMSO",
 #'        stratifyBy="Status",
 #'        showSignificanceBracket=TRUE,
 #'        showTitle=FALSE,
@@ -209,7 +209,6 @@ cytokine.specific.subset.comparison <- function(compassResultOrPath,
   }
   p1
   
-  # The next part is wholly specific to the Resistor dataset ....
   # Now create a table with three columns: 1) subset and 2) adjusted p-values, 3) change in mean magnitudes
   tests <- sapply(paste0(parentSubset, ":", compassSubsetsFilteredAlpha, ".BgCorr"), function(colname) {
     coin::wilcox_test(data = compassPopStatsMetaBgCorr, get(colname) ~ get(stratifyBy))
