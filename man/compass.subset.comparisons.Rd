@@ -7,7 +7,8 @@
 compass.subset.comparisons(compassResultOrPath, gsOrGsListOrPath,
   cytokineOfInterestGate, parentSubset, threshold = 0.01, antigenCol,
   stimAntigen, controlAntigen, stratifyBy, outdir = NULL,
-  stratifyByValueMinuend = NULL, stratifyByValueSubtrahend = NULL)
+  stratifyByValueMinuend = NULL, stratifyByValueSubtrahend = NULL,
+  sampleIDCol)
 }
 \arguments{
 \item{compassResultOrPath}{}
@@ -48,6 +49,7 @@ ifngResults <- compass.subset.comparisons(compassResultOrPath=myCompassResult,
        antigenCol="Antigen",
        stimAntigen="Peptide Pool 1",
        controlAntigen="DMSO",
-       stratifyBy="Status")
+       stratifyBy="Status",
+       sampleIDCol="PATIENT ID")
 }
 }

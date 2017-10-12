@@ -12,6 +12,7 @@
 #' @param threshold (optional) Filters subsets where the average mean_gamma is greater than the threshold
 #' @param antigenCol 
 #' @param stimAntigen 
+#' @param sampleIDCol
 #' @param controlAntigen 
 #' @param stratifyBy column of pData to stratify data by
 #' @param outdir (optional)
@@ -31,20 +32,22 @@
 #'        antigenCol="Antigen",
 #'        stimAntigen="Peptide Pool 1",
 #'        controlAntigen="DMSO",
-#'        stratifyBy="Status")
+#'        stratifyBy="Status",
+#'        sampleIDCol="PATIENT ID")
 #' }
 compass.subset.comparisons <- function(compassResultOrPath,
-                                                gsOrGsListOrPath,
-                                                cytokineOfInterestGate,
-                                                parentSubset,
-                                                threshold=0.01,
-                                                antigenCol,
-                                                stimAntigen,
-                                                controlAntigen,
-                                                stratifyBy,
-                                                outdir=NULL,
-                                                stratifyByValueMinuend=NULL,
-                                                stratifyByValueSubtrahend=NULL) {
+                                       gsOrGsListOrPath,
+                                       cytokineOfInterestGate,
+                                       parentSubset,
+                                       threshold=0.01,
+                                       antigenCol,
+                                       stimAntigen,
+                                       controlAntigen,
+                                       stratifyBy,
+                                       outdir=NULL,
+                                       stratifyByValueMinuend=NULL,
+                                       stratifyByValueSubtrahend=NULL,
+                                       sampleIDCol) {
   compassResult <- if(class(compassResultOrPath) == "character") {
     readRDS(compassResultOrPath)
   } else if(class(compassResultOrPath) == "COMPASSResult") {
