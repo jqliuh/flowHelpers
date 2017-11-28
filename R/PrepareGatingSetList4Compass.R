@@ -47,10 +47,10 @@ prepare.gating.set.list.4.compass <- function(xmlFiles=NULL,
                                               keyword4samples2exclude=NULL,
                                               samples2exclude=NULL,
                                               returnGSList=FALSE) {
-  if(is.null(xmlFiles) & is.null(gsDirs) & length(gsList) == 0) {stop("One or more of xmlFiles or gsDirs or gsList must be provided")}
-  if(is.null(outDir)) {stop("outDir must be provided")}
-  if(length(list.files(outDir)) > 0) {
-    stop("Please empty or delete outDir")
+  if(is.null(xmlFiles) && is.null(gsDirs) && length(gsList) == 0) {stop("One or more of xmlFiles or gsDirs or gsList must be provided")}
+  if(!returnGSList && is.null(outDir)) {stop("outDir must be provided")}
+  if(!is.null(outDir) && length(list.files(outDir)) > 0) {
+    stop("Please delete outDir")
   }
 
   # Load in all the GatingSets from gsDirs
