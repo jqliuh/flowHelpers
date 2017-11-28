@@ -150,13 +150,12 @@ boxplot.cell.counts <- function(flowJoXmlPath=NULL,
       paste(c("QC_Boxplot_", subpopulationFmtd, "_Counts_By_", stratifyByLevel1, "_and_", stratifyByLevel2, "_", batchName, ".png"), collapse="")
     }}
     cat(paste(c("Saving png to ", file.path(outdir, pngName), "\n"), collapse=""))
-    setwd(outdir)
-    png(pngName, width=1500, height=900)
+    png(file.path(outdir, pngName), width=1500, height=900)
     print(countsBoxplot)
     dev.off()
 
     # Write annotatedCounts to file
     countsFileName <- paste(c("QC_Annotated_Counts_", subpopulationFmtd, "_", batchName, ".txt"), collapse="")
-    write.table(annotatedCounts, file=countsFileName, sep="\t")
+    write.table(annotatedCounts, file=file.path(outdir, countsFileName), sep="\t")
   }
 }

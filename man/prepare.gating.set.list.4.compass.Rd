@@ -55,6 +55,7 @@ prepare.gating.set.list.4.compass(xmlFiles=c("/home/Batch1Files/Batch1FlowJoWork
                                   keyword4samples2exclude="Barcode",
                                   samples2exclude=c('1234567890', '1234567891', '1234567892', '1234567893', '1234567894'))
                                   }
+TODO: Write tests. - When keyword4samples2exclude and gsList and/or gsDirs are provided. - When keyword4samples2exclude and xmlFiles are provided
 }
 \keyword{COMPASS}
 \keyword{GatingSetList}

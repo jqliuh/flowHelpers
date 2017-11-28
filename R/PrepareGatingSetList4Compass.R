@@ -2,12 +2,11 @@
 
 #' Prepare flow data for COMPASS
 #'
-#' This function reads in multiple FlowJo workspace xml files and their associated FCS files.
+#' This function accepts GatingSets and/or reads in multiple FlowJo workspace xml files and their associated FCS files.
 #' It then combines them all into a single GatingSetList, extracting the user-provided keywords
 #' and checking that the batches are combine-able along the way.
-#' Optionally, you can provide a list of saved GatingSet directories (in addition to or instead of the xml files).
-#' These are assumed to already have keywords and samples filtered.
-#' The final GatingSetList is saved to a user-provided output directory. You can then use it directly with COMPASS or modify it further.
+#' GatingSets should already have keywords.
+#' The final GatingSetList is saved to a user-provided output directory by default. You can then use it directly with COMPASS or modify it further.
 #'
 #' Note 1: All the batches need to have the same gating tree, so this function will drop unshared
 #' nodes and channels from the batches to be merged. TODO: make option to turn off default
@@ -22,7 +21,8 @@
 #' @param keywords2import (Optional) character vector. List of keywords to import from FlowJo workspace and into pData.
 #' @param keyword4samples2exclude (Optional) keyword used to identify samples for exclusion
 #' @param samples2exclude (Optional) character vector. When making GatingSetList, exclude samples whose keyword4samples2exclude column contains values in this vector. Usually a result of poor quality data, discovered during the QC step.
-#' @return Nothing
+#' @param returnGSList (Optional) Return the GatingSetList instead of saving it. Default FALSE
+#' @return Nothing, or GatingSetList if requested
 #' @keywords GatingSetList COMPASS
 #' @export
 #' @examples
@@ -36,6 +36,7 @@
 #'                                   keyword4samples2exclude="Barcode",
 #'                                   samples2exclude=c('1234567890', '1234567891', '1234567892', '1234567893', '1234567894'))
 #'                                   }
+#' TODO: Write tests. - When keyword4samples2exclude and gsList and/or gsDirs are provided. - When keyword4samples2exclude and xmlFiles are provided
 prepare.gating.set.list.4.compass <- function(xmlFiles=NULL,
                                               fcsFiles=NULL,
                                               gsDirs=NULL,
@@ -44,7 +45,8 @@ prepare.gating.set.list.4.compass <- function(xmlFiles=NULL,
                                               sampleGroups=NULL,
                                               keywords2import=c(),
                                               keyword4samples2exclude=NULL,
-                                              samples2exclude=NULL) {
+                                              samples2exclude=NULL,
+                                              returnGSList=FALSE) {
   if(is.null(xmlFiles) & is.null(gsDirs) & length(gsList) == 0) {stop("One or more of xmlFiles or gsDirs or gsList must be provided")}
   if(is.null(outDir)) {stop("outDir must be provided")}
   if(length(list.files(outDir)) > 0) {
@@ -62,7 +64,8 @@ prepare.gating.set.list.4.compass <- function(xmlFiles=NULL,
 
   # Read in all the FlowJo workspaces and their fcs files.
   if (is.null(sampleGroups)) {
-    sampleGroups <- rep(3, length(xmlFiles))
+    message("sampleGroups not found, defaulting to \"All Samples\"")
+    sampleGroups <- rep("All Samples", length(xmlFiles))
   }
   wsList <- list()
   gsListLen <- length(gsList)
@@ -70,8 +73,9 @@ prepare.gating.set.list.4.compass <- function(xmlFiles=NULL,
     for (i in 1:length(xmlFiles)) {
       wsList[[i]] <- flowWorkspace::openWorkspace(xmlFiles[i])
       if (!is.null(fcsFiles)) {
+        # TODO: use parseWorkspace subset argument instead of subset.GatingSet   subset=grepl(paste(samples2exclude, collapse="|"), factor(get(keyword4samples2exclude)), invert=TRUE)
         gsList[[gsListLen + i]] <- flowWorkspace::parseWorkspace(wsList[[i]], name=sampleGroups[i], path=fcsFiles[i],
-                                                  keywords=unique(append(keywords2import, keyword4samples2exclude)))
+                                                                           keywords=unique(append(keywords2import, keyword4samples2exclude)))
         if (!is.null(keyword4samples2exclude) & !is.null(samples2exclude)) {
           gsList[[gsListLen + i]] <- subset.GatingSet(gsList[[gsListLen + i]], !(factor(get(keyword4samples2exclude)) %in% samples2exclude))
         }
@@ -115,16 +119,29 @@ prepare.gating.set.list.4.compass <- function(xmlFiles=NULL,
 
   # The GatingSets should now be ready to combine into one GatingSetList
   gsList4COMPASS <- flowWorkspace::GatingSetList(gsList)
-  # Save the new GatingSetList to disk
-  # Delete outDir and its subdirectories
-  paste(c(as.character(Sys.time()), " Overwriting outDir: ", outDir, "\n"), collapse="")
-  unlink(outDir, recursive=TRUE)
-  flowWorkspace::save_gslist(gsList4COMPASS, path=outDir)
-  # Close all the workspaces, if applicable
-  if (length(wsList) > 0) {
-    for (i in 1:length(wsList)) {
-      flowWorkspace::closeWorkspace(wsList[[i]])
+  # Subset the GatingSetList based on keyword4samples2exclude, if applicable
+  # It might be more correct to do this when the GatingSets are first read in (prior to the marker/gating checking above), but this way is quicker
+  if (!is.null(keyword4samples2exclude) & !is.null(samples2exclude)) {
+    if (keyword4samples2exclude %in% colnames(pData(gsList4COMPASS))) {
+      gsList4COMPASS <- subset(gsList4COMPASS, !(factor(get(keyword4samples2exclude)) %in% samples2exclude))
+    } else {
+      message(paste(keyword4samples2exclude, " not in colnames(pData(gsList4COMPASS))"))
     }
   }
-
+  
+  if (returnGSList) {
+    gsList4COMPASS
+  } else {
+    # Save the new GatingSetList to disk
+    # Delete outDir and its subdirectories
+    paste(c(as.character(Sys.time()), " Overwriting outDir: ", outDir, "\n"), collapse="")
+    unlink(outDir, recursive=TRUE)
+    flowWorkspace::save_gslist(gsList4COMPASS, path=outDir)
+    # Close all the workspaces, if applicable
+    if (length(wsList) > 0) {
+      for (i in 1:length(wsList)) {
+        flowWorkspace::closeWorkspace(wsList[[i]])
+      }
+    }
+  }
 }
