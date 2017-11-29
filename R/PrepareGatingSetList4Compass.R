@@ -20,7 +20,7 @@
 #' @param sampleGroups (Optional) numeric vector. Specify this if the flowJo sample group is not 3 for all batches.
 #' @param keywords2import (Optional) character vector. List of keywords to import from FlowJo workspace and into pData.
 #' @param keyword4samples2exclude (Optional) keyword used to identify samples for exclusion
-#' @param samples2exclude (Optional) character vector. When making GatingSetList, exclude samples whose keyword4samples2exclude column contains values in this vector. Usually a result of poor quality data, discovered during the QC step.
+#' @param samples2exclude (Optional) character vector. When making GatingSetList, excludes samples whose keyword4samples2exclude column matches patterns in this vector (using `grepl`).
 #' @param returnGSList (Optional) Return the GatingSetList instead of saving it. Default FALSE
 #' @return Nothing, or GatingSetList if requested
 #' @keywords GatingSetList COMPASS
@@ -77,13 +77,13 @@ prepare.gating.set.list.4.compass <- function(xmlFiles=NULL,
         gsList[[gsListLen + i]] <- flowWorkspace::parseWorkspace(wsList[[i]], name=sampleGroups[i], path=fcsFiles[i],
                                                                            keywords=unique(append(keywords2import, keyword4samples2exclude)))
         if (!is.null(keyword4samples2exclude) & !is.null(samples2exclude)) {
-          gsList[[gsListLen + i]] <- subset.GatingSet(gsList[[gsListLen + i]], !(factor(get(keyword4samples2exclude)) %in% samples2exclude))
+          gsList[[gsListLen + i]] <- subset.GatingSet(gsList[[gsListLen + i]], !grepl(paste(samples2exclude, collapse="|"), factor(get(keyword4samples2exclude))))
         }
       } else {
         gsList[[gsListLen + i]] <- parseWorkspace(wsList[[i]], name=sampleGroups[i],
                                                   keywords=unique(append(keywords2import, keyword4samples2exclude)))
         if (!is.null(keyword4samples2exclude) & !is.null(samples2exclude)) {
-          gsList[[gsListLen + i]] <- subset.GatingSet(gsList[[gsListLen + i]], !(factor(get(keyword4samples2exclude)) %in% samples2exclude))
+          gsList[[gsListLen + i]] <- subset.GatingSet(gsList[[gsListLen + i]], !grepl(paste(samples2exclude, collapse="|"), factor(get(keyword4samples2exclude))))
         }
       }
     }
@@ -123,7 +123,7 @@ prepare.gating.set.list.4.compass <- function(xmlFiles=NULL,
   # It might be more correct to do this when the GatingSets are first read in (prior to the marker/gating checking above), but this way is quicker
   if (!is.null(keyword4samples2exclude) & !is.null(samples2exclude)) {
     if (keyword4samples2exclude %in% colnames(pData(gsList4COMPASS))) {
-      gsList4COMPASS <- subset(gsList4COMPASS, !(factor(get(keyword4samples2exclude)) %in% samples2exclude))
+      gsList4COMPASS <- subset(gsList4COMPASS, !grepl(paste(samples2exclude, collapse="|"), factor(get(keyword4samples2exclude))))
     } else {
       message(paste(keyword4samples2exclude, " not in colnames(pData(gsList4COMPASS))"))
     }
