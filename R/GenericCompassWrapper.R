@@ -58,20 +58,20 @@ run.compass.once <- function(gs,
   # in expression for each category
   png(filename=paste(c("HeatmapMeanProbResponse", "_", cnode, run, ".png"), collapse=""),
       width=800, height=650)
-  try(print(plot(fit, grouping, show_rownames = TRUE,
+  try(grid::grid.draw(print(plot(fit, grouping, show_rownames = TRUE,
                  main = paste("Heatmap of Mean Probability of Response", plotTitleSuffix, sep=""),
                  fontsize=14, fontsize_row=13, fontsize_col=11,
-                 cytokine_annotation_colors=cytokine_annotation_colors)))
+                 cytokine_annotation_colors=cytokine_annotation_colors))))
   dev.off()
 
   # Log scale of previous data, smaller changes show up better
   png(filename=paste(c("HeatmapLogPostResponse", "_", cnode, run, ".png"), collapse=""),
       width=800, height=650)
-  try(print(plot(fit, grouping, show_rownames = TRUE,
+  try(grid::grid.draw(print(plot(fit, grouping, show_rownames = TRUE,
                  measure=COMPASS::PosteriorLogDiff(fit), threshold=0,
                  main = paste("Heatmap of Log Posterior Differences in Response", plotTitleSuffix, sep=""),
                  fontsize=14, fontsize_row=13, fontsize_col=11,
-                 cytokine_annotation_colors=cytokine_annotation_colors)))
+                 cytokine_annotation_colors=cytokine_annotation_colors))))
   dev.off()
 
   # If applicable, create line plot of Functionality Score vs. lineplotxvar
@@ -114,6 +114,7 @@ run.compass.once <- function(gs,
 #' @param lineplotgroupby (Optional) This should be specified if lineplotxvar is given. pData column which defines which values to connect in the line plot (usually something like "PTID")
 #' @return Nothing
 #' @keywords COMPASS
+#' @import grid
 #' @export
 #' @examples
 #' \dontrun{

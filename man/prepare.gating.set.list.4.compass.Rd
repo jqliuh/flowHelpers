@@ -7,7 +7,7 @@
 prepare.gating.set.list.4.compass(xmlFiles = NULL, fcsFiles = NULL,
   gsDirs = NULL, gsList = list(), outDir = NULL, sampleGroups = NULL,
   keywords2import = c(), keyword4samples2exclude = NULL,
-  samples2exclude = NULL)
+  samples2exclude = NULL, returnGSList = FALSE)
 }
 \arguments{
 \item{xmlFiles}{character vector (xmlFiles AND/OR gsDirs AND/OR gsList is required)}
@@ -26,18 +26,19 @@ prepare.gating.set.list.4.compass(xmlFiles = NULL, fcsFiles = NULL,
 
 \item{keyword4samples2exclude}{(Optional) keyword used to identify samples for exclusion}
 
-\item{samples2exclude}{(Optional) character vector. When making GatingSetList, exclude samples whose keyword4samples2exclude column contains values in this vector. Usually a result of poor quality data, discovered during the QC step.}
+\item{samples2exclude}{(Optional) character vector. When making GatingSetList, excludes samples whose keyword4samples2exclude column matches patterns in this vector (using `grepl`).}
+
+\item{returnGSList}{(Optional) Return the GatingSetList instead of saving it. Default FALSE}
 }
 \value{
-Nothing
+Nothing, or GatingSetList if requested
 }
 \description{
-This function reads in multiple FlowJo workspace xml files and their associated FCS files.
+This function accepts GatingSets and/or reads in multiple FlowJo workspace xml files and their associated FCS files.
 It then combines them all into a single GatingSetList, extracting the user-provided keywords
 and checking that the batches are combine-able along the way.
-Optionally, you can provide a list of saved GatingSet directories (in addition to or instead of the xml files).
-These are assumed to already have keywords and samples filtered.
-The final GatingSetList is saved to a user-provided output directory. You can then use it directly with COMPASS or modify it further.
+GatingSets should already have keywords.
+The final GatingSetList is saved to a user-provided output directory by default. You can then use it directly with COMPASS or modify it further.
 }
 \details{
 Note 1: All the batches need to have the same gating tree, so this function will drop unshared
