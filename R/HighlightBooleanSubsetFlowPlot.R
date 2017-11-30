@@ -91,15 +91,9 @@ highlight.boolean.subset.flow.plot <- function(path,
   
   metaSub <- flowWorkspace::pData(gs)[flowWorkspace::pData(gs)[individualsCol] == individual & (flowWorkspace::pData(gs)[conditioncol] == exp | flowWorkspace::pData(gs)[conditioncol] == ctrl),]
   gsSub <- gs[rownames(metaSub)]
-  # getNodes(gsSub[[1]], path="auto")
   
-  call <- substitute(flowWorkspace::booleanFilter(v), list(v = as.symbol(boolsubset)))
-  g <- eval(call)
   boolsubsetName <- gsub("/", ":", boolsubset)
-  flowWorkspace::add(gs, g, parent = parentsubset, name=boolsubsetName)
-  flowWorkspace::getNodes(gsSub[[1]], path="auto")
-  flowWorkspace::recompute(gsSub, boolsubsetName)
-  # Obtain proportion of boolsubset cells and add as column to PopStats
+  addBooleanGate(gs=gs, booleanSubset=boolsubset, parentGate=parentsubset, overrideGate=FALSE, booleanGateName=boolsubsetName)
   boolsubsetPopStats <- flowWorkspace::getPopStats(gsSub, flowJo=FALSE, subpopulations=c(boolsubsetName))
   
   gsSubMetaData <- flowWorkspace::pData(gsSub)[,2:length(colnames(flowWorkspace::pData(gsSub)))]
