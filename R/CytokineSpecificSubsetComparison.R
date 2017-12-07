@@ -166,7 +166,7 @@ cytokine.specific.subset.comparison <- function(compassResultOrPath,
   # stratifyBy passed ok below? quote/`` ?
   p1 <- ggplot2::ggplot(data=compassPopStatsMeta4Plot, ggplot2::aes(x=SubsetGroup, y=SumSubsetsProportionBgCorr, fill=get(stratifyBy))) +
     ggplot2::geom_boxplot(outlier.shape=NA, position = ggplot2::position_dodge(width=0.75)) +
-    ggplot2::geom_point(position=ggplot2::position_jitterdodge(dodge.width=0.7), ggplot2::aes(group=get(stratifyBy)), size=0.9) +
+    ggplot2::geom_point(position=ggplot2::position_jitterdodge(dodge.width=0.75, jitter.width = 0.2), ggplot2::aes(group=get(stratifyBy)), size=0.9) +
     ggplot2::theme_set(ggplot2::theme_gray(base_size = themeBaseSize)) +
     ggplot2::labs(x = "Boolean Subset Group", y = "Bg-Corrected\nProportions of CD4") +
     ggplot2::scale_x_discrete(labels = c(paste0(cytokineForDisplay, " Positive"), paste0(cytokineForDisplay, " Negative"))) +
