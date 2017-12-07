@@ -4,19 +4,21 @@
 \alias{fs.plot}
 \title{Plot of Functionality Score vs some other axis}
 \usage{
-fs.plot(gsOrGsListOrPath, compassResultOrPath, stratifyBy, ylims = NULL,
-  outdir = NULL, plotTextExtra = "", plotWilcox = FALSE,
-  themeBaseSize = 18, removeGridAndBg = FALSE, showTitle = TRUE,
-  showSignificanceBracket = TRUE)
+fs.plot(compassResultOrPath, stratifyBy, ylims = NULL, outdir = NULL,
+  plotTextExtra = "", plotWilcox = FALSE, themeBaseSize = 18,
+  removeGridAndBg = FALSE, showTitle = TRUE,
+  showSignificanceBracket = TRUE, gsOrGsListOrPath = NULL)
 }
 \arguments{
-\item{gsOrGsListOrPath}{Either a GatingSet, a GatingSetList, or path to one of these objects on disk}
+\item{compassResultOrPath}{the COMPASSResult object or path to a COMPASSResult RDS object on disk}
 
 \item{stratifyBy}{Character vector of metadata columns to stratify plot by}
 
 \item{outdir}{If given, plot will be saved to this directory instead of being returned in a list along with plot data}
 
 \item{plotTextExtra}{Extra text (e.g. "CD4+, Peptide Pool 1") to place in plot title and filename. Commas and spaces, etc will be removed for filename.}
+
+\item{gsOrGsListOrPath}{(optional) Either a GatingSet, a GatingSetList, or path to one of these objects on disk. You can specify this if you want to use its metadata instead of the metadata in the COMPASSResult object}
 }
 \description{
 TODO: Make another function for paired values (i.e. line plot)

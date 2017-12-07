@@ -1,7 +1,8 @@
 #' Plot of Functionality Score vs some other axis
 #' 
 #' TODO: Make another function for paired values (i.e. line plot)
-#' @param gsOrGsListOrPath Either a GatingSet, a GatingSetList, or path to one of these objects on disk
+#' @param compassResultOrPath the COMPASSResult object or path to a COMPASSResult RDS object on disk
+#' @param gsOrGsListOrPath (optional) Either a GatingSet, a GatingSetList, or path to one of these objects on disk. You can specify this if you want to use its metadata instead of the metadata in the COMPASSResult object
 #' @param plotTextExtra Extra text (e.g. "CD4+, Peptide Pool 1") to place in plot title and filename. Commas and spaces, etc will be removed for filename.
 #' @param outdir If given, plot will be saved to this directory instead of being returned in a list along with plot data
 #' @param stratifyBy Character vector of metadata columns to stratify plot by
@@ -23,8 +24,7 @@
 #'        plotTextExtra="",
 #'        plotWilcox=TRUE)
 #' }
-fs.plot <- function(gsOrGsListOrPath,
-                    compassResultOrPath,
+fs.plot <- function(compassResultOrPath,
                     stratifyBy,
                     ylims=NULL,
                     outdir=NULL,
@@ -33,8 +33,10 @@ fs.plot <- function(gsOrGsListOrPath,
                     themeBaseSize=18,
                     removeGridAndBg=FALSE,
                     showTitle=TRUE,
-                    showSignificanceBracket=TRUE) {
-  gs <- if(class(gsOrGsListOrPath) == "GatingSet" || class(gsOrGsListOrPath) == "GatingSetList") {
+                    showSignificanceBracket=TRUE,
+                    gsOrGsListOrPath=NULL) {
+  gs <- if (!is.null(gsOrGsListOrPath)) {
+    if(class(gsOrGsListOrPath) == "GatingSet" || class(gsOrGsListOrPath) == "GatingSetList") {
     gsOrGsListOrPath
   } else {
     try(if(!(class(gsOrGsListOrPath) == "character")) stop("gsOrGsListOrPath must be either a GatingSet, a GatingSetList, or the path to the folder containing one of these objects on disk"))
@@ -48,7 +50,7 @@ fs.plot <- function(gsOrGsListOrPath,
       out
     }
     loadGSListOrGS(gsOrGsListOrPath)
-  }
+  }}
   
   cr <- if(class(compassResultOrPath) == "COMPASSResult") {
     compassResultOrPath
@@ -58,10 +60,12 @@ fs.plot <- function(gsOrGsListOrPath,
     readRDS(compassResultOrPath)
   }
   fsTable <- as.data.table(FunctionalityScore(cr), keep.rownames = TRUE)
-  individualIdentifier <- cr$data$individual_id # pData(gs) and the fsTable should have this column
+  individualIdentifier <- cr$data$individual_id # pData(gs)/cr$data$meta and the fsTable should have this column
   colnames(fsTable) <- c(individualIdentifier, "FunctionalityScore")
   
-  pData4Plot <- as.data.table(pData(gs)[,c(individualIdentifier, stratifyBy)])
+  meta <- if (!is.null(gsOrGsListOrPath)) { pData(gs) } else { cr$data$meta  }
+  
+  pData4Plot <- as.data.table(meta[,c(individualIdentifier, stratifyBy)])
   setkeyv(pData4Plot, individualIdentifier)
   pData4Plot <- unique(pData4Plot)
   fsTable <- merge(fsTable, pData4Plot, by=individualIdentifier)
@@ -73,7 +77,7 @@ fs.plot <- function(gsOrGsListOrPath,
   p <- ggplot2::ggplot(data=fsTable, ggplot2::aes_string(x=xaxis, y=yaxis))
   p <- p + ggplot2::geom_boxplot(inherit.aes=FALSE, ggplot2::aes_string(x=xaxis, y=yaxis), colour = "black", outlier.shape = NA)
   p <- p +
-    ggplot2::geom_jitter() +
+    ggplot2::geom_jitter(width=0.15) +
     ggplot2::labs(x=xaxis, y=yaxis) +
     ggplot2::theme_set(ggplot2::theme_gray(base_size = themeBaseSize)) +
     ggplot2::coord_cartesian(ylim=ylimits)
@@ -87,7 +91,7 @@ fs.plot <- function(gsOrGsListOrPath,
   }
   
   # Wilcox rank sum test between groups
-  testResult <- if(length(stratifyBy) == 1) {
+  testResult <- if(length(stratifyBy) == 1 && length(levels(as.factor(fsTable[,get(stratifyBy)]))) == 2) {
     fsTable[,stratifyBy] <- as.factor(fsTable[,get(stratifyBy)])
     tr <- coin::wilcox_test(FunctionalityScore ~ get(stratifyBy), data=fsTable)
     if(plotWilcox) {

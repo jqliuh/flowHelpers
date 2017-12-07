@@ -230,9 +230,10 @@ lineplot.boolean.subset.proportions <- function(path,
   
   if(showPvalue) {
     plot <- plot +
-      geom_text(aes(x = 0.9, y = max(counts4boxplotsMerge$CountAsProportionDiffPos)*0.95,
-                    label = test_label),
-                show.legend = FALSE, size=5)
+      ggplot2::annotate("text", x = 0.9, y = max(counts4boxplotsMerge$CountAsProportionDiffPos)*0.95, label = test_label, size=5)
+      # geom_text(aes(x = 0.9, y = max(counts4boxplotsMerge$CountAsProportionDiffPos)*0.95,
+      #               label = test_label),
+      #           show.legend = FALSE, size=5)
   }
   
   if (labelPoints) {

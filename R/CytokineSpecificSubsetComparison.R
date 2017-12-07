@@ -189,54 +189,69 @@ cytokine.specific.subset.comparison <- function(compassResultOrPath,
     p1 <- p1 +  ggplot2::coord_cartesian(ylim = c(0, ymax)) 
   }
   
-  # Non-parametric Wilcoxon rank sum test (mann whitney U test) between resistor and non-resistor for 1) IFNg-specific subsets and 2_ IFNg-Non-Specific subsets:
-  # https://stats.stackexchange.com/a/206754   https://stats.stackexchange.com/a/31421
-  # Note: The stats::wilcox.test  function cannot handle ties, which exist in this data. coin::wilcox_test can handle ties so I used that.
-  Cytokine_Positive_test <- coin::wilcox_test(data = compassPopStatsMeta4Plot[which(compassPopStatsMeta4Plot$SubsetGroup == "sumCytokinePosProp_BgCorr"),], as.formula(paste0("SumSubsetsProportionBgCorr~", stratifyBy)))
-  Cytokine_Negative_test <- coin::wilcox_test(data = compassPopStatsMeta4Plot[which(compassPopStatsMeta4Plot$SubsetGroup == "sumNotCytokinePosProp_BgCorr"),], as.formula(paste0("SumSubsetsProportionBgCorr~", stratifyBy)))
-  wilcox_results <- list("Cytokine_Positive_test" = Cytokine_Positive_test, "Cytokine_Negative_test" = Cytokine_Negative_test)
+  two_groups <- length(levels(as.factor(compassPopStatsMeta4Plot[,stratifyBy]))) == 2
   
-  if(showSignificanceBracket) {
-    y_BracketMax <- if(!is.null(ymax)) { 0.9*ymax } else { max(compassPopStatsMeta4Plot$SumSubsetsProportionBgCorr) }
-    y_CytoPosBracket <- min(y_BracketMax, max(compassPopStatsMeta4Plot[which(compassPopStatsMeta4Plot$SubsetGroup == "sumCytokinePosProp_BgCorr"),]$SumSubsetsProportionBgCorr))*1.04
-    y_CytoNegBracket <- min(y_BracketMax, max(compassPopStatsMeta4Plot[which(compassPopStatsMeta4Plot$SubsetGroup == "sumNotCytokinePosProp_BgCorr"),]$SumSubsetsProportionBgCorr))*1.04
-    p1 <- p1 + ggsignif::geom_signif(annotation=paste0("p=", signif(coin::pvalue(Cytokine_Positive_test), digits=3)),
-                                     y_position=y_CytoPosBracket, xmin=0.75, xmax=1.25, 
-                                     tip_length = c(0.01, 0.01)) +
-      ggsignif::geom_signif(annotation=paste0("p=", signif(coin::pvalue(Cytokine_Negative_test), digits=3)),
-                            y_position=y_CytoNegBracket, xmin=1.75, xmax=2.25, 
-                            tip_length = c(0.01, 0.01))
+  wilcox_results <- if (two_groups) {
+    # Non-parametric Wilcoxon rank sum test (mann whitney U test) between resistor and non-resistor for 1) IFNg-specific subsets and 2_ IFNg-Non-Specific subsets:
+    # https://stats.stackexchange.com/a/206754   https://stats.stackexchange.com/a/31421
+    # Note: The stats::wilcox.test  function cannot handle ties, which exist in this data. coin::wilcox_test can handle ties so I used that.
+    Cytokine_Positive_test <- coin::wilcox_test(data = compassPopStatsMeta4Plot[which(compassPopStatsMeta4Plot$SubsetGroup == "sumCytokinePosProp_BgCorr"),], as.formula(paste0("SumSubsetsProportionBgCorr~", stratifyBy)))
+    Cytokine_Negative_test <- coin::wilcox_test(data = compassPopStatsMeta4Plot[which(compassPopStatsMeta4Plot$SubsetGroup == "sumNotCytokinePosProp_BgCorr"),], as.formula(paste0("SumSubsetsProportionBgCorr~", stratifyBy)))
+    wilcox_results <- list("Cytokine_Positive_test" = Cytokine_Positive_test, "Cytokine_Negative_test" = Cytokine_Negative_test)
+    
+    if(showSignificanceBracket) {
+      y_BracketMax <- if(!is.null(ymax)) { 0.9*ymax } else { max(compassPopStatsMeta4Plot$SumSubsetsProportionBgCorr) }
+      y_CytoPosBracket <- min(y_BracketMax, max(compassPopStatsMeta4Plot[which(compassPopStatsMeta4Plot$SubsetGroup == "sumCytokinePosProp_BgCorr"),]$SumSubsetsProportionBgCorr))*1.04
+      y_CytoNegBracket <- min(y_BracketMax, max(compassPopStatsMeta4Plot[which(compassPopStatsMeta4Plot$SubsetGroup == "sumNotCytokinePosProp_BgCorr"),]$SumSubsetsProportionBgCorr))*1.04
+      p1 <- p1 + ggsignif::geom_signif(annotation=paste0("p=", signif(coin::pvalue(Cytokine_Positive_test), digits=3)),
+                                       y_position=y_CytoPosBracket, xmin=0.75, xmax=1.25, 
+                                       tip_length = c(0.01, 0.01)) +
+        ggsignif::geom_signif(annotation=paste0("p=", signif(coin::pvalue(Cytokine_Negative_test), digits=3)),
+                              y_position=y_CytoNegBracket, xmin=1.75, xmax=2.25, 
+                              tip_length = c(0.01, 0.01))
+    }
+    
+    wilcox_results
+  } else {
+    NULL
   }
   p1
+
+  bgCorrProportionsTestByStratify <- if (two_groups) {  
   
-  # Now create a table with three columns: 1) subset and 2) adjusted p-values, 3) change in mean magnitudes
-  tests <- sapply(paste0(parentSubset, ":", compassSubsetsFilteredAlpha, ".BgCorr"), function(colname) {
-    coin::wilcox_test(data = compassPopStatsMetaBgCorr, get(colname) ~ get(stratifyBy))
-  })
-  minuend <- if(!is.null(stratifyByValueMinuend)) { stratifyByValueMinuend } else { unique(compassPopStatsMetaBgCorr[,stratifyBy])[[1]] }
-  subtrahend <- if(!is.null(stratifyByValueSubtrahend)) { stratifyByValueSubtrahend } else { unique(compassPopStatsMetaBgCorr[,stratifyBy])[[2]] }
-  deltaMeanMagnitudes <- sapply(paste0(parentSubset, ":", compassSubsetsFilteredAlpha, ".BgCorr"), function(colname) {
-    meanMagMinuend <- mean(compassPopStatsMetaBgCorr[which(compassPopStatsMetaBgCorr[, stratifyBy] == minuend), colname])
-    meanMagSubtrahend <- mean(compassPopStatsMetaBgCorr[which(compassPopStatsMetaBgCorr[, stratifyBy] == subtrahend), colname])
-    meanMagMinuend - meanMagSubtrahend
-  })
-  
-  bgCorrProportionsTestByStratify <- data.table::rbindlist(lapply(compassSubsetsFilteredAlpha, function(subset) {
-    and_split <- stringr::str_split(subset, "&")[[1]]
-    rawMarkerNames <- unlist(lapply(and_split, function(str) { tmpvec <- stringr::str_split(str, "!")[[1]]; tmpvec[[length(tmpvec)]] }))
-    subsetRepresentation <- rep("+", length(and_split))
-    subsetRepresentation[grep("!", and_split)] <- "-"
-    subsetRepresentation <- data.table::as.data.table(t(subsetRepresentation))
-    colnames(subsetRepresentation) <- rawMarkerNames
-    subsetRepresentation
-  }))
-  bgCorrProportionsTestByStratify <- cbind(bgCorrProportionsTestByStratify, p.adjust(sapply(tests, coin::pvalue), method="bonferroni"), deltaMeanMagnitudes)
-  colnames(bgCorrProportionsTestByStratify) <- c(unlist(lapply(stringr::str_split(compassSubsetsFilteredAlpha[[1]], "&")[[1]], function(str) {
-    tmpvec <- stringr::str_split(str, "!")[[1]];
-    tmp <- tmpvec[[length(tmpvec)]];
-    substr(tmp, 1, nchar(tmp)-1)
-  })), "p-value (adj)", "Diff Mean Bg-Corr Prop")
-  bgCorrProportionsTestByStratify <- bgCorrProportionsTestByStratify[order(bgCorrProportionsTestByStratify$`p-value (adj)`),]
+    # Now create a table with three columns: 1) subset and 2) adjusted p-values, 3) change in mean magnitudes
+    tests <- sapply(paste0(parentSubset, ":", compassSubsetsFilteredAlpha, ".BgCorr"), function(colname) {
+      coin::wilcox_test(data = compassPopStatsMetaBgCorr, get(colname) ~ get(stratifyBy))
+    })
+    minuend <- if(!is.null(stratifyByValueMinuend)) { stratifyByValueMinuend } else { unique(compassPopStatsMetaBgCorr[,stratifyBy])[[1]] }
+    subtrahend <- if(!is.null(stratifyByValueSubtrahend)) { stratifyByValueSubtrahend } else { unique(compassPopStatsMetaBgCorr[,stratifyBy])[[2]] }
+    deltaMeanMagnitudes <- sapply(paste0(parentSubset, ":", compassSubsetsFilteredAlpha, ".BgCorr"), function(colname) {
+      meanMagMinuend <- mean(compassPopStatsMetaBgCorr[which(compassPopStatsMetaBgCorr[, stratifyBy] == minuend), colname])
+      meanMagSubtrahend <- mean(compassPopStatsMetaBgCorr[which(compassPopStatsMetaBgCorr[, stratifyBy] == subtrahend), colname])
+      meanMagMinuend - meanMagSubtrahend
+    })
+    
+    bgCorrProportionsTestByStratify <- data.table::rbindlist(lapply(compassSubsetsFilteredAlpha, function(subset) {
+      and_split <- stringr::str_split(subset, "&")[[1]]
+      rawMarkerNames <- unlist(lapply(and_split, function(str) { tmpvec <- stringr::str_split(str, "!")[[1]]; tmpvec[[length(tmpvec)]] }))
+      subsetRepresentation <- rep("+", length(and_split))
+      subsetRepresentation[grep("!", and_split)] <- "-"
+      subsetRepresentation <- data.table::as.data.table(t(subsetRepresentation))
+      colnames(subsetRepresentation) <- rawMarkerNames
+      subsetRepresentation
+    }))
+    bgCorrProportionsTestByStratify <- cbind(bgCorrProportionsTestByStratify, p.adjust(sapply(tests, coin::pvalue), method="bonferroni"), deltaMeanMagnitudes)
+    colnames(bgCorrProportionsTestByStratify) <- c(unlist(lapply(stringr::str_split(compassSubsetsFilteredAlpha[[1]], "&")[[1]], function(str) {
+      tmpvec <- stringr::str_split(str, "!")[[1]];
+      tmp <- tmpvec[[length(tmpvec)]];
+      substr(tmp, 1, nchar(tmp)-1)
+    })), "p-value (adj)", "Diff Mean Bg-Corr Prop")
+    bgCorrProportionsTestByStratify <- bgCorrProportionsTestByStratify[order(bgCorrProportionsTestByStratify$`p-value (adj)`),]
+    bgCorrProportionsTestByStratify
+  } else {
+    NULL
+  }
+
   
   # Save output to outdir if given
   if(!is.null(outdir)) {
@@ -247,10 +262,12 @@ cytokine.specific.subset.comparison <- function(compassResultOrPath,
                     plot=p1,
                     width=6.8, height=5.5,
                     path=outdir, device="svg")
-    # Save the wilcox tests as rds
-    saveRDS(wilcox_results, file=file.path(outdir, paste0(file_prefix, "SubsetGroupWilcoxTestsBy", stratifyBy, ".rds")))
-    # Save the pvalue table as csv
-    write.csv(bgCorrProportionsTestByStratify, file = file.path(outdir, paste0(file_prefix, "_bgCorrProportionsTestBy", stratifyBy, ".csv")))
+    if (two_groups) {
+      # Save the wilcox tests as rds
+      saveRDS(wilcox_results, file=file.path(outdir, paste0(file_prefix, "SubsetGroupWilcoxTestsBy", stratifyBy, ".rds")))
+      # Save the pvalue table as csv
+      write.csv(bgCorrProportionsTestByStratify, file = file.path(outdir, paste0(file_prefix, "_bgCorrProportionsTestBy", stratifyBy, ".csv")))
+    }
     # Save sum of bg-corrected proportions for the 2 subset groups as a csv
     write.csv(compassPopStatsMeta4Plot, file = file.path(outdir, paste0(file_prefix, "_sumSubsetBgCorrProportionsBy", stratifyBy, ".csv")))
   }
