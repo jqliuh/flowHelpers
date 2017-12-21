@@ -20,8 +20,8 @@ addBooleanGate <- function(gs,
   } else {
     booleanGateName
   }
-  message("Checking for gate ", booleanSubsetName)
-  if(booleanSubsetName %in% getNodes(gs, path="auto")) {
+  message("Checking for gate ", booleanSubsetName, "\n in the first GatingHierarchy")
+  if(booleanSubsetName %in% getNodes(gs[[1]], path="auto")) {
     # If the gate already exists, decide what to do with it.
     if(overrideGate) {
       message(paste0("Gate ", booleanSubsetName, " already exists. Deleting old gate and adding new gate..."))
