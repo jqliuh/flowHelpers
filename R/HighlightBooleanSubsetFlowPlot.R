@@ -177,11 +177,12 @@ highlight.boolean.subset.flow.plot <- function(path,
     #                strip.text=ggplot2::element_text(size=16),
     #                legend.title=ggplot2::element_text(size=15),
     #                legend.text=ggplot2::element_text(size=12))
-  if(!is.null(xlims)) {
+  if(!is.null(xlims) && is.null(ylims)) {
     flowplot <- flowplot + ggplot2::coord_cartesian(xlim = xlims) 
-  }
-  if(!is.null(ylims)) {
+  } else if(!is.null(ylims) && is.null(xlims)) {
     flowplot <- flowplot +  ggplot2::coord_cartesian(ylim = ylims) 
+  } else if(!is.null(xlims) && !is.null(ylims)) {
+    flowplot <- flowplot +  ggplot2::coord_cartesian(xlim = xlims, ylim = ylims) 
   }
   if(stripLegendGridAxesTitle) {
     flowplot <- flowplot + 
