@@ -7,7 +7,8 @@
 fs.plot(compassResultOrPath, stratifyBy, ylims = NULL, outdir = NULL,
   plotTextExtra = "", plotWilcox = FALSE, themeBaseSize = 18,
   removeGridAndBg = FALSE, showTitle = TRUE,
-  showSignificanceBracket = TRUE, gsOrGsListOrPath = NULL)
+  showSignificanceBracket = TRUE, gsOrGsListOrPath = NULL,
+  polyfunctionality = F)
 }
 \arguments{
 \item{compassResultOrPath}{the COMPASSResult object or path to a COMPASSResult RDS object on disk}
@@ -19,6 +20,8 @@ fs.plot(compassResultOrPath, stratifyBy, ylims = NULL, outdir = NULL,
 \item{plotTextExtra}{Extra text (e.g. "CD4+, Peptide Pool 1") to place in plot title and filename. Commas and spaces, etc will be removed for filename.}
 
 \item{gsOrGsListOrPath}{(optional) Either a GatingSet, a GatingSetList, or path to one of these objects on disk. You can specify this if you want to use its metadata instead of the metadata in the COMPASSResult object}
+
+\item{polyfunctionality}{Display Polyfunctionality Score instead of Functionality Score}
 }
 \description{
 TODO: Make another function for paired values (i.e. line plot)

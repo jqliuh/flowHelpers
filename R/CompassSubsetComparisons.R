@@ -136,6 +136,8 @@ compass.subset.comparisons <- function(compassResultOrPath,
   stopifnot(compassPopStatsMetaBgCorr[,paste0(stratifyBy, ".Ctrl")] == compassPopStatsMetaBgCorr[,paste0(stratifyBy, ".Stim")])
   colnames(compassPopStatsMetaBgCorr)[which(colnames(compassPopStatsMetaBgCorr) == paste0(stratifyBy, ".Ctrl"))] <- stratifyBy
   
+  # Make the stratifyBy a column a factor, sometimes needed
+  compassPopStatsMetaBgCorr[, stratifyBy] <- as.factor(compassPopStatsMetaBgCorr[, stratifyBy])
   tests <- sapply(paste0(parentSubset, ":", compassSubsetsFilteredAlpha, ".BgCorr"), function(colname) {
     coin::wilcox_test(data = compassPopStatsMetaBgCorr, get(colname) ~ get(stratifyBy))
   })

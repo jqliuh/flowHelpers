@@ -10,6 +10,7 @@
 #' @param removeGridAndBg
 #' @param showTitle
 #' @param showSignificanceBracket
+#' @param polyfunctionality Display Polyfunctionality Score instead of Functionality Score
 #' @export
 #' @import coin
 #' @import COMPASS
@@ -34,7 +35,8 @@ fs.plot <- function(compassResultOrPath,
                     removeGridAndBg=FALSE,
                     showTitle=TRUE,
                     showSignificanceBracket=TRUE,
-                    gsOrGsListOrPath=NULL) {
+                    gsOrGsListOrPath=NULL,
+                    polyfunctionality=F) {
   gs <- if (!is.null(gsOrGsListOrPath)) {
     if(class(gsOrGsListOrPath) == "GatingSet" || class(gsOrGsListOrPath) == "GatingSetList") {
     gsOrGsListOrPath
@@ -59,9 +61,9 @@ fs.plot <- function(compassResultOrPath,
     # Load the saved COMPASSResult
     readRDS(compassResultOrPath)
   }
-  fsTable <- as.data.table(FunctionalityScore(cr), keep.rownames = TRUE)
+  fsTable <- if(polyfunctionality) {as.data.table(PolyfunctionalityScore(cr), keep.rownames = TRUE)} else {as.data.table(FunctionalityScore(cr), keep.rownames = TRUE)}
   individualIdentifier <- cr$data$individual_id # pData(gs)/cr$data$meta and the fsTable should have this column
-  colnames(fsTable) <- c(individualIdentifier, "FunctionalityScore")
+  colnames(fsTable) <- c(individualIdentifier, "Score")
   
   meta <- if (!is.null(gsOrGsListOrPath)) { pData(gs) } else { cr$data$meta  }
   
@@ -71,18 +73,21 @@ fs.plot <- function(compassResultOrPath,
   fsTable <- merge(fsTable, pData4Plot, by=individualIdentifier)
   
   xaxis <- stratifyBy
-  yaxis <- "FunctionalityScore"
+  yaxis <- "Score"
   groupName <- individualIdentifier
-  ylimits <- if(is.null(ylims)) { c(min(fsTable$FunctionalityScore) - 0.004, max(fsTable$FunctionalityScore) + 0.004) } else { ylims }
+  ylimits <- if(is.null(ylims)) { c(min(fsTable$Score) - 0.004, max(fsTable$Score) + 0.004) } else { ylims }
   p <- ggplot2::ggplot(data=fsTable, ggplot2::aes_string(x=xaxis, y=yaxis))
   p <- p + ggplot2::geom_boxplot(inherit.aes=FALSE, ggplot2::aes_string(x=xaxis, y=yaxis), colour = "black", outlier.shape = NA)
   p <- p +
     ggplot2::geom_jitter(width=0.15) +
-    ggplot2::labs(x=xaxis, y=yaxis) +
+    ggplot2::labs(x=xaxis,
+                  y=if(polyfunctionality) {"Polyfunctionality Score"} else {"Functionality Score"}) +
     ggplot2::theme_set(ggplot2::theme_gray(base_size = themeBaseSize)) +
     ggplot2::coord_cartesian(ylim=ylimits)
   if(showTitle) {
-    title <- paste0("Functionality Score Boxplot\nBy ", stratifyBy, "\n", plotTextExtra)
+    title <- sprintf("%s Score Boxplot\nBy %s\n%s",
+                     if(polyfunctionality) {"Polyfunctionality"} else {"Functionality"},
+                     stratifyBy, plotTextExtra)
     p <- p + ggplot2::labs(title=title)
   }
   if(removeGridAndBg) {
@@ -93,18 +98,18 @@ fs.plot <- function(compassResultOrPath,
   # Wilcox rank sum test between groups
   testResult <- if(length(stratifyBy) == 1 && length(levels(as.factor(fsTable[,get(stratifyBy)]))) == 2) {
     fsTable[,stratifyBy] <- as.factor(fsTable[,get(stratifyBy)])
-    tr <- coin::wilcox_test(FunctionalityScore ~ get(stratifyBy), data=fsTable)
+    tr <- coin::wilcox_test(Score ~ get(stratifyBy), data=fsTable)
     if(plotWilcox) {
       p <- p + ggplot2::geom_text(label = paste0("p = ", signif(coin::pvalue(tr), 3)),
                                   x = 1.5,
-                                  y = max(fsTable$FunctionalityScore) + 0.003,
+                                  y = max(fsTable$Score) + 0.003,
                                   colour="black",
                                   parse=FALSE,
                                   size=5)
     }
     
     if(showSignificanceBracket) {
-      y_Bracket <- max(fsTable$FunctionalityScore)*1.04
+      y_Bracket <- max(fsTable$Score)*1.04
       p <- p + ggsignif::geom_signif(annotation=paste0("p=", signif(coin::pvalue(tr), digits=3)),
                                        y_position=y_Bracket, xmin=0.85, xmax=2.15, 
                                        tip_length = c(0.01, 0.01))
@@ -114,7 +119,7 @@ fs.plot <- function(compassResultOrPath,
   
   if(!is.null(outdir)) {
     filePrefix <- gsub(" ", "_", gsub("[`!@#$%^&*(),?]", "", plotTextExtra)) # replace spaces with underscores and other symbols with an empty string
-    filename <- paste0(filePrefix, "_Compass_FS_Plot.png")
+    filename <- sprintf("%s_Compass_%s_Plot.png", filePrefix, if(polyfunctionality) {"PFS"} else {"FS"}) 
     ggplot2::ggsave(filename=file.path(outdir, filename),
                     plot=p,
                     width=6.66, height=7.85)
