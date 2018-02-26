@@ -11,6 +11,12 @@
 #' @param showTitle
 #' @param showSignificanceBracket
 #' @param polyfunctionality Display Polyfunctionality Score instead of Functionality Score
+#' @param pvalue_fontsize
+#' @param axestitle_fontsize
+#' @param axestick_fontsize
+#' @param font
+#' @param geom_jitter_width
+#' @param xaxis_title
 #' @export
 #' @import coin
 #' @import COMPASS
@@ -36,7 +42,13 @@ fs.plot <- function(compassResultOrPath,
                     showTitle=TRUE,
                     showSignificanceBracket=TRUE,
                     gsOrGsListOrPath=NULL,
-                    polyfunctionality=F) {
+                    polyfunctionality=F,
+                    pvalue_fontsize=NULL,
+                    axestitle_fontsize=NULL,
+                    axestick_fontsize=NULL,
+                    font=NULL,
+                    geom_jitter_width=0.15,
+                    xaxis_title=stratifyBy) {
   gs <- if (!is.null(gsOrGsListOrPath)) {
     if(class(gsOrGsListOrPath) == "GatingSet" || class(gsOrGsListOrPath) == "GatingSetList") {
     gsOrGsListOrPath
@@ -79,11 +91,22 @@ fs.plot <- function(compassResultOrPath,
   p <- ggplot2::ggplot(data=fsTable, ggplot2::aes_string(x=xaxis, y=yaxis))
   p <- p + ggplot2::geom_boxplot(inherit.aes=FALSE, ggplot2::aes_string(x=xaxis, y=yaxis), colour = "black", outlier.shape = NA)
   p <- p +
-    ggplot2::geom_jitter(width=0.15) +
-    ggplot2::labs(x=xaxis,
+    ggplot2::geom_jitter(width=geom_jitter_width) +
+    ggplot2::labs(x=xaxis_title,
                   y=if(polyfunctionality) {"Polyfunctionality Score"} else {"Functionality Score"}) +
     ggplot2::theme_set(ggplot2::theme_gray(base_size = themeBaseSize)) +
-    ggplot2::coord_cartesian(ylim=ylimits)
+    ggplot2::coord_cartesian(ylim=ylimits) +
+    ggplot2::theme(axis.text=element_text(colour="black"))
+  if(!is.null(axestick_fontsize)) {
+    p <- p + ggplot2::theme(axis.text=element_text(size=axestick_fontsize))
+  }
+  if(!is.null(axestitle_fontsize)) {
+    p <- p + ggplot2::theme(axis.title=element_text(size=axestitle_fontsize))
+  }
+  if(!is.null(font)) {
+    p <- p + ggplot2::theme(text = element_text(family=font))
+  }
+                   
   if(showTitle) {
     title <- sprintf("%s Score Boxplot\nBy %s\n%s",
                      if(polyfunctionality) {"Polyfunctionality"} else {"Functionality"},
@@ -99,8 +122,9 @@ fs.plot <- function(compassResultOrPath,
   testResult <- if(length(stratifyBy) == 1 && length(levels(as.factor(fsTable[,get(stratifyBy)]))) == 2) {
     fsTable[,stratifyBy] <- as.factor(fsTable[,get(stratifyBy)])
     tr <- coin::wilcox_test(Score ~ get(stratifyBy), data=fsTable)
+    p_value_text <- if(coin::pvalue(tr) < 0.001) {"p<0.001"} else {paste0("p=", signif(coin::pvalue(tr), digits=3))}
     if(plotWilcox) {
-      p <- p + ggplot2::geom_text(label = paste0("p = ", signif(coin::pvalue(tr), 3)),
+      p <- p + ggplot2::geom_text(label = p_value_text,
                                   x = 1.5,
                                   y = max(fsTable$Score) + 0.003,
                                   colour="black",
@@ -110,9 +134,31 @@ fs.plot <- function(compassResultOrPath,
     
     if(showSignificanceBracket) {
       y_Bracket <- max(fsTable$Score)*1.04
-      p <- p + ggsignif::geom_signif(annotation=paste0("p=", signif(coin::pvalue(tr), digits=3)),
-                                       y_position=y_Bracket, xmin=0.85, xmax=2.15, 
-                                       tip_length = c(0.01, 0.01))
+      if(!is.null(pvalue_fontsize)) {
+        if(!is.null(font)) {
+          p <- p + ggsignif::geom_signif(annotation=p_value_text,
+                                         y_position=y_Bracket, xmin=0.85, xmax=2.15, 
+                                         tip_length = c(0.01, 0.01),
+                                         textsize=pvalue_fontsize,
+                                         family=font)
+        } else {
+          p <- p + ggsignif::geom_signif(annotation=p_value_text,
+                                         y_position=y_Bracket, xmin=0.85, xmax=2.15, 
+                                         tip_length = c(0.01, 0.01),
+                                         textsize=pvalue_fontsize)
+        }
+      } else {
+        if(!is.null(font)) {
+          p <- p + ggsignif::geom_signif(annotation=p_value_text,
+                                         y_position=y_Bracket, xmin=0.85, xmax=2.15, 
+                                         tip_length = c(0.01, 0.01),
+                                         family=font)
+        } else {
+          p <- p + ggsignif::geom_signif(annotation=p_value_text,
+                                         y_position=y_Bracket, xmin=0.85, xmax=2.15, 
+                                         tip_length = c(0.01, 0.01))
+        }
+      }
     }
     tr
   }

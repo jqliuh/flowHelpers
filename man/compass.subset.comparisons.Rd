@@ -4,11 +4,10 @@
 \alias{compass.subset.comparisons}
 \title{COMPASS Subset Comparisons}
 \usage{
-compass.subset.comparisons(compassResultOrPath, gsOrGsListOrPath,
-  cytokineOfInterestGate, parentSubset, threshold = 0.01, antigenCol,
-  stimAntigen, controlAntigen, stratifyBy, outdir = NULL,
-  stratifyByValueMinuend = NULL, stratifyByValueSubtrahend = NULL,
-  sampleIDCol)
+compass.subset.comparisons(compassResultOrPath, gsOrGsListOrPath, parentSubset,
+  threshold = 0.01, antigenCol, stimAntigen, controlAntigen, stratifyBy,
+  outdir = NULL, stratifyByValueMinuend = NULL,
+  stratifyByValueSubtrahend = NULL, sampleIDCol)
 }
 \arguments{
 \item{compassResultOrPath}{}

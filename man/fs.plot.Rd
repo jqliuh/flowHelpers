@@ -8,7 +8,9 @@ fs.plot(compassResultOrPath, stratifyBy, ylims = NULL, outdir = NULL,
   plotTextExtra = "", plotWilcox = FALSE, themeBaseSize = 18,
   removeGridAndBg = FALSE, showTitle = TRUE,
   showSignificanceBracket = TRUE, gsOrGsListOrPath = NULL,
-  polyfunctionality = F)
+  polyfunctionality = F, pvalue_fontsize = NULL,
+  axestitle_fontsize = NULL, axestick_fontsize = NULL, font = NULL,
+  geom_jitter_width = 0.15, xaxis_title = stratifyBy)
 }
 \arguments{
 \item{compassResultOrPath}{the COMPASSResult object or path to a COMPASSResult RDS object on disk}
