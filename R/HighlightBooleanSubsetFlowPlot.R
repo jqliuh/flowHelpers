@@ -6,11 +6,11 @@
 #' @param path path to directory holding GatingSetList or GatingSet
 #' @param gsOrGsList GatingSet or GatingSetList object
 #' @param individualsCol column which defines individual
-#' @param individual value of individual in individualsCol whose data you want to plot
+#' @param individual value of individual(s) in individualsCol whose data you want to plot
 #' @param conditioncol name of the column that defines the main experimental condition, e.g. Antigen
 #' @param exp experimental value in conditioncol, e.g. ESAT-6
 #' @param ctrl control value in conditioncol, e.g. DMSO
-#' @param conditioncol2 second condition on which to stratify Flow plots
+#' @param conditioncol2 second condition on which to stratify Flow plots, e.g. "PATIENT ID"
 #' @param parentsubset unique name of parent node to use for plots
 #' @param boolsubset the full boolean subset to be used by booleanfilter()
 #' @param xaxis a marker name to plot on the x-axis
@@ -23,6 +23,10 @@
 #' @param themeBaseSize
 #' @param xlims
 #' @param ylims
+#' @param axestitle_fontsize
+#' @param font
+#' @param percentage_fontsize
+#' @param geom_hex_bins
 #' @return Flow plot, unless outdir is specified
 #' @import data.table
 #' @import flowWorkspace
@@ -68,7 +72,11 @@ highlight.boolean.subset.flow.plot <- function(path,
                                                themeBaseSize=18,
                                                stripLegendGridAxesTitle=FALSE,
                                                xlims=NULL,
-                                               ylims=NULL
+                                               ylims=NULL,
+                                               axestitle_fontsize=NULL,
+                                               font=NULL,
+                                               percentage_fontsize=NULL,
+                                               geom_hex_bins=120
                                                    
 ) {
   # TODO: check all required parameters exist
@@ -89,22 +97,26 @@ highlight.boolean.subset.flow.plot <- function(path,
     loadGSListOrGS(path)
   }
   
-  metaSub <- flowWorkspace::pData(gs)[flowWorkspace::pData(gs)[individualsCol] == individual & (flowWorkspace::pData(gs)[conditioncol] == exp | flowWorkspace::pData(gs)[conditioncol] == ctrl),]
+  metaSub <- flowWorkspace::pData(gs)[intersect(which(flowWorkspace::pData(gs)[,individualsCol] %in% individual),
+                                                union(which(flowWorkspace::pData(gs)[conditioncol] == exp),
+                                                      which(flowWorkspace::pData(gs)[conditioncol] == ctrl))),]
   gsSub <- gs[rownames(metaSub)]
   
   boolsubsetName <- gsub("/", ":", boolsubset)
   addBooleanGate(gs=gs, booleanSubset=boolsubset, parentGate=parentsubset, overrideGate=FALSE, booleanGateName=boolsubsetName)
   boolsubsetPopStats <- flowWorkspace::getPopStats(gsSub, flowJo=FALSE, subpopulations=c(boolsubsetName))
   
-  gsSubMetaData <- flowWorkspace::pData(gsSub)[,2:length(colnames(flowWorkspace::pData(gsSub)))]
+  # gsSubMetaData <- flowWorkspace::pData(gsSub)[,2:length(colnames(flowWorkspace::pData(gsSub)))]
+  gsSubMetaData <- flowWorkspace::pData(gsSub)
   gsSubMetaData <- cbind(gsSubMetaData, rownames(gsSubMetaData))
   colnames(gsSubMetaData)[length(colnames(gsSubMetaData))] <- "row.names"
-  gsSubMetaDataCols <- if (conditioncol2 == ".") { c("row.names", conditioncol) } else {c("row.names", conditioncol, conditioncol2) }
+  gsSubMetaDataCols <- if (conditioncol2 == ".") { c("row.names", conditioncol) } else
+    {c("row.names", conditioncol, conditioncol2) }
   
   boolsubsetPopStatsMerge <- merge(x=boolsubsetPopStats[, c("name", "Population", "Count", "ParentCount")], y=gsSubMetaData[, gsSubMetaDataCols], by.x="name", by.y="row.names")
   
   library(data.table)
-  byCols <- c(conditioncol, conditioncol2)
+  byCols <- c(conditioncol, conditioncol2)#, individualsCol)
   byCols <- unique(byCols[byCols != "."])
   boolsubsetPopStatsMergeCollapsed <- rbind(boolsubsetPopStatsMerge[, {
     # cols2makeUnique <- .BY #.BY[, c("Day", "Treatment")]
@@ -124,12 +136,13 @@ highlight.boolean.subset.flow.plot <- function(path,
   by=byCols])
   
   boolsubsetPopStatsMergeCollapsed[, "Proportion"] <- boolsubsetPopStatsMergeCollapsed[, "Count"] / boolsubsetPopStatsMergeCollapsed[, "ParentCount"]
-  boolsubsetPopStatsMergeCollapsed[, "Percent"] <- sapply(formatC(base::round(with(boolsubsetPopStatsMergeCollapsed, Count / ParentCount) * 100, 3), 3, format="f"), function(x) paste(x, "%", sep=""), USE.NAMES=FALSE)
+  # boolsubsetPopStatsMergeCollapsed[, "Percent"] <- sapply(formatC(base::round(with(boolsubsetPopStatsMergeCollapsed, Count / ParentCount) * 100, 3), 3, format="f"), function(x) paste(x, "%", sep=""), USE.NAMES=FALSE)
+  boolsubsetPopStatsMergeCollapsed[, "Percent"] <- sapply(with(boolsubsetPopStatsMergeCollapsed, Count / ParentCount) * 100, function(x) { if(x == 0) {"0%"} else { paste0(format(round(x, 2), nsmall = 2), "%") }}, USE.NAMES = F)
   
   flowtitle <- if (conditioncol2 == ".") {
-    paste(c(individualsCol, " ", as.character(individual), ", ", parentsubset, " cells\nResponse to ", exp), collapse="")
+    paste(c(individualsCol, " ", paste(individual, collapse=", "), ", ", parentsubset, " cells\nResponse to ", exp), collapse="")
   } else {
-    paste(c(individualsCol, " ", as.character(individual), ", ", parentsubset, " cells\nResponse to ", exp, " vs ", conditioncol2), collapse="")
+    paste(c(individualsCol, " ", paste(individual, collapse=", "), ", ", parentsubset, " cells\nResponse to ", exp, " vs ", conditioncol2), collapse="")
   }
   
   # Simplify boolean subset for display
@@ -161,13 +174,18 @@ highlight.boolean.subset.flow.plot <- function(path,
     boolsubsetPopStatsMergeCollapsed[,conditioncol2] <- factor(boolsubsetPopStatsMergeCollapsed[,conditioncol2], levels=facetorder2)
   }
   
+  # Rename conditioncol2 column in case it contains characters like spaces, which mess up formulas
+  colnames(pData(gsSub))[which(colnames(pData(gsSub)) == conditioncol2)] <- "conditioncol2"
+  colnames(boolsubsetPopStatsMergeCollapsed)[which(colnames(boolsubsetPopStatsMergeCollapsed) == conditioncol2)] <- "conditioncol2"
+  
   flowplot <- ggcyto::ggcyto(gsSub, ggplot2::aes_string(x=xaxis, y=yaxis, alpha=0.5), subset=parentsubset) +
-    ggplot2::geom_hex(bins = 120) +
+    ggplot2::geom_hex(bins = geom_hex_bins) +
     ggcyto::labs_cyto("marker") +
-    ggplot2::facet_grid(stats::as.formula(paste(conditioncol, "~", conditioncol2))) +
+    ggplot2::facet_grid(stats::as.formula(paste(conditioncol, "~", "conditioncol2"))) +
     ggcyto::geom_overlay(boolsubsetName, col="red", size=overlayDotSize, alpha=1) +
     ggplot2::geom_text(data=boolsubsetPopStatsMergeCollapsed, ggplot2::aes_string(x=get("geomTextX"), y=get("geomTextY"), label="Percent"),
-                       colour="black", parse=FALSE, inherit.aes=FALSE, size=max(1, themeBaseSize-13)) +
+                       colour="black", parse=FALSE, inherit.aes=FALSE,
+                       size=if(is.null(percentage_fontsize)) { max(1, themeBaseSize-13) } else { percentage_fontsize }) +
     ggplot2::scale_alpha(guide = 'none') +
     ggplot2::theme_set(ggplot2::theme_gray(base_size = themeBaseSize))
     # ggplot2::theme(plot.title=ggplot2::element_text(vjust=-0.8, hjust=0.5, size=19),
@@ -194,6 +212,12 @@ highlight.boolean.subset.flow.plot <- function(path,
   } else {
     flowplot <- flowplot + 
       ggplot2::labs(title=flowtitle, subtitle=subtitle1)
+  }
+  if(!is.null(axestitle_fontsize)) {
+    flowplot <- flowplot + ggplot2::theme(axis.title=element_text(size=axestitle_fontsize))
+  }
+  if(!is.null(font)) {
+    flowplot <- flowplot + ggplot2::theme(text = element_text(family=font))
   }
 
   width <- if (is.null(width)) { if (conditioncol2 == ".") { 5 } else { 9 } } else { width }

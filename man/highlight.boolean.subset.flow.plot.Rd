@@ -9,7 +9,9 @@ highlight.boolean.subset.flow.plot(path, gsOrGsList = NULL, outdir = NULL,
   parentsubset, boolsubset, xaxis, yaxis, facetorder = NULL,
   facetorder2 = NULL, geomTextY = 5, geomTextX = 200, pngORsvg = "png",
   width = NULL, overlayDotSize = 0.4, themeBaseSize = 18,
-  stripLegendGridAxesTitle = FALSE, xlims = NULL, ylims = NULL)
+  stripLegendGridAxesTitle = FALSE, xlims = NULL, ylims = NULL,
+  axestitle_fontsize = NULL, font = NULL, percentage_fontsize = NULL,
+  geom_hex_bins = 120)
 }
 \arguments{
 \item{path}{path to directory holding GatingSetList or GatingSet}
@@ -20,7 +22,7 @@ highlight.boolean.subset.flow.plot(path, gsOrGsList = NULL, outdir = NULL,
 
 \item{individualsCol}{column which defines individual}
 
-\item{individual}{value of individual in individualsCol whose data you want to plot}
+\item{individual}{value of individual(s) in individualsCol whose data you want to plot}
 
 \item{conditioncol}{name of the column that defines the main experimental condition, e.g. Antigen}
 
@@ -28,7 +30,7 @@ highlight.boolean.subset.flow.plot(path, gsOrGsList = NULL, outdir = NULL,
 
 \item{ctrl}{control value in conditioncol, e.g. DMSO}
 
-\item{conditioncol2}{second condition on which to stratify Flow plots}
+\item{conditioncol2}{second condition on which to stratify Flow plots, e.g. "PATIENT ID"}
 
 \item{parentsubset}{unique name of parent node to use for plots}
 

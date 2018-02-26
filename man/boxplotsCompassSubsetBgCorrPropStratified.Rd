@@ -12,7 +12,8 @@ boxplotsCompassSubsetBgCorrPropStratified(compass.subset.comparisons.result,
   axestick_fontsize = NULL, font = NULL, geom_jitter_width = 0.05,
   xaxis_title = stratifyBy, dot_size = 0.75, legend_position = c(1, 1),
   show_points = F, padj_method = "bonferroni", ylim = NULL,
-  p_alpha = 0.05, stratifyBy_colors = NULL, box_fill_alpha = 0.7)
+  p_alpha = 0.05, stratifyBy_colors = NULL, box_fill_alpha = 0.7,
+  legend_fontsize = NULL)
 }
 \arguments{
 \item{compass.subset.comparisons.result}{The output from a run of COMPASSHelpers::compass.subset.comparisons(). Contains the p-values and background-corrected proportions for each subset.}
@@ -60,6 +61,6 @@ boxplotsCompassSubsetBgCorrPropStratified(compass.subset.comparisons.result,
                                           parentSubset,
                                           removeGridAndBg=T,
                                           ylim=c(0, 0.01),
-                                          stratifyBy_colors=list("RSTR" = "white", "LTBI" = "black"))
+                                          stratifyBy_colors=c("RSTR" = "white", "LTBI" = "black"))
 }
 }
