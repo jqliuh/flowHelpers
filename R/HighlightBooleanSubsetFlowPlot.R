@@ -137,7 +137,7 @@ highlight.boolean.subset.flow.plot <- function(path,
   
   boolsubsetPopStatsMergeCollapsed[, "Proportion"] <- boolsubsetPopStatsMergeCollapsed[, "Count"] / boolsubsetPopStatsMergeCollapsed[, "ParentCount"]
   # boolsubsetPopStatsMergeCollapsed[, "Percent"] <- sapply(formatC(base::round(with(boolsubsetPopStatsMergeCollapsed, Count / ParentCount) * 100, 3), 3, format="f"), function(x) paste(x, "%", sep=""), USE.NAMES=FALSE)
-  boolsubsetPopStatsMergeCollapsed[, "Percent"] <- sapply(with(boolsubsetPopStatsMergeCollapsed, Count / ParentCount) * 100, function(x) { if(x == 0) {"0%"} else { paste0(format(round(x, 2), nsmall = 2), "%") }}, USE.NAMES = F)
+  boolsubsetPopStatsMergeCollapsed[, "Percent"] <- sapply(with(boolsubsetPopStatsMergeCollapsed, Count / ParentCount) * 100, function(x) { if(x < 0.005) {"0%"} else { paste0(format(round(x, 2), nsmall = 2), "%") }}, USE.NAMES = F)
   
   flowtitle <- if (conditioncol2 == ".") {
     paste(c(individualsCol, " ", paste(individual, collapse=", "), ", ", parentsubset, " cells\nResponse to ", exp), collapse="")
