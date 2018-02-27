@@ -145,7 +145,7 @@ boxplotsCompassSubsetBgCorrPropStratified <- function(compass.subset.comparisons
         p_text <- if(subsets_p_adj[[subset]] < 0.001) {"p<0.001"} else {paste0("p=", format(round(subsets_p_adj[[subset]], 3), nsmall = 3))}
         find_whisker_max <- function(x) { quantile(x, probs = c(0.75)) + IQR(x) }
         whisker_max <- max(aggregate(data_long[which(data_long$Subset==subset),"BgCorrProp"], by = list(data_long[which(data_long$Subset==subset), stratifyBy]), FUN = find_whisker_max)$x)
-        y_pos <- whisker_max + if(!is.null(ylim)) {ylim[[2]]/30} else {max(data_long)$BgCorrProp/30}
+        y_pos <- whisker_max + if(!is.null(ylim)) {ylim[[2]]/30} else {max(data_long$BgCorrProp)/30}
         if(!is.null(font)) {
           if(!is.null(pvalue_fontsize)) {
             p <- p +
