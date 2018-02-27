@@ -1,21 +1,41 @@
 ### GenericCompassWrapper.R #######################################################
 
-####################################################################
-# This function runs COMPASS once, saving output to disk.
-# Intended for use by the generic.compass.wrapper function below.
-####################################################################
+#' Run COMPASS once
+#'
+#' This function runs COMPASS once, saving output to disk.
+#' Intended for use by the generic.compass.wrapper function below.
+#' @param gs The GatingSet of GatingSetList
+#' @param cnode Node on which to run COMPASS
+#' @param nodemarkermap List mapping nodes to marker names
+#' @param outdir Directory in which to save output, e.g. heatmaps
+#' @param individuals pData column containing individual identifiers (rows of heatmap)
+#' @param seed (Optional) Number to set seed to [default NULL]
+#' @param grouping (Optional) pData columns on which to group rows in heatmap, as a character vector [default NULL]
+#' @param uniqueruns (Optional) pData column identifying unique runs. Use if you need multiple runs. [default NULL]
+#' @param lineplotxvar (Optional) pData column which defines groups along x-axis in FS-score line plot, e.g. Time [default NULL]
+#' @param iter (Optional) Number of COMPASS iterations to perform on each repitition (8 repetitions total) [default 40,000]
+#' @param lineplotgroupby (Optional) This should be specified if lineplotxvar is given. pData column which defines which values to connect in the line plot (usually something like "PTID")
+#' @return Nothing
+#' @keywords COMPASS
+#' @import grid
+#' @export
 run.compass.once <- function(gs,
                              cnode,
                              individuals,
                              nodemarkermap,
-                             iter,
-                             lineplotxvar,
+                             iter=40000,
+                             lineplotxvar=NULL,
                              run=NULL,
                              outdir,
-                             uniqueruns,
-                             grouping,
-                             lineplotgroupby,
-                             countFilterThreshold=0) {
+                             uniqueruns=NULL,
+                             grouping=NULL,
+                             lineplotgroupby=NULL,
+                             countFilterThreshold=0,
+                             seed=NULL) {
+  if (!is.null(seed)) {
+    set.seed(seed)
+  }
+  
   # Create a COMPASSContainer from the GatingSetList.
   CC <- COMPASS::COMPASSContainerFromGatingSet(gs, node=cnode, individual_id=individuals,
                                       mp=nodemarkermap, countFilterThreshold=countFilterThreshold)
