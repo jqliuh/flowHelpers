@@ -1,3 +1,5 @@
+Disclaimer: This repository is a work in progress. Use at your own risk!
+
 # COMPASS Helpers
 Collection of functions for running COMPASS https://github.com/RGLab/COMPASS  
 This workflow is designed for projects where gating has been completed in FlowJo v9 and the user has exported the FlowJo workspace as an xml file and has access to the original fcs files.
