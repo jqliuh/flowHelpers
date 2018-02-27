@@ -122,7 +122,8 @@ fs.plot <- function(compassResultOrPath,
   testResult <- if(length(stratifyBy) == 1 && length(levels(as.factor(fsTable[,get(stratifyBy)]))) == 2) {
     fsTable[,stratifyBy] <- as.factor(fsTable[,get(stratifyBy)])
     tr <- coin::wilcox_test(Score ~ get(stratifyBy), data=fsTable)
-    p_value_text <- if(coin::pvalue(tr) < 0.001) {"p<0.001"} else {paste0("p=", signif(coin::pvalue(tr), digits=3))}
+    # p_value_text <- if(coin::pvalue(tr) < 0.001) {"p<0.001"} else {paste0("p=", signif(coin::pvalue(tr), digits=3))}
+    p_value_text <- if(coin::pvalue(tr) < 0.001) {"p<0.001"} else {paste0("p=", format(round(coin::pvalue(tr), 3), nsmall = 3))}
     if(plotWilcox) {
       p <- p + ggplot2::geom_text(label = p_value_text,
                                   x = 1.5,
