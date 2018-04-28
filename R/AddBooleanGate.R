@@ -1,10 +1,8 @@
-# From https://github.com/malisas/flowIncubator/blob/a140e8985b41a530c0fe87c65cfd2fe7009696c9/R/AddBooleanGate.R
-
-#' Adds boolean gate to the GatingSet or GatingSetList
+#' Adds a boolean gate to the GatingSet or GatingSetList
 #' 
 #' @param gs Either a GatingSet, a GatingSetList, or path to one of these objects on disk
 #' @param booleanSubset The booleanSubset (a combination of existing gates) in string format, e.g. "8+/GMM+&!8+/GAMMADELTA"
-#' @param parentGate The gate under which the booleansubset is added
+#' @param parentGate The gate under which the booleansubset is to be added
 #' @param booleanGateName optional. What to call the new gate
 #' @import flowWorkspace
 #' @export addBooleanGate

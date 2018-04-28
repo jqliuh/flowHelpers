@@ -199,7 +199,7 @@ extractAndFilterDataForTsne <- function(gs=NULL, parentGate = NULL, degreeFilter
     } else {
       0
     })
-    colnames(d) <- c(parentGate, degreeFilterGates, otherGates, "degree")
+    colnames(d) <- c(unique(c(parentGate, degreeFilterGates, otherGates)), "degree")
     # Members of the parentGate will have parentGate be 1 (just for tracking purposes)
     # totalParentGateEvents <- totalParentGateEvents + length(which(d[,"degree"] >= 0))
     totalParentGateEvents <- totalParentGateEvents + length(which(d[,parentGate] == 1))
