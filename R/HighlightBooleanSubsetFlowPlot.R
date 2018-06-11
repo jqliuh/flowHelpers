@@ -181,7 +181,7 @@ highlight.boolean.subset.flow.plot <- function(path,
   flowplot <- ggcyto::ggcyto(gsSub, ggplot2::aes_string(x=xaxis, y=yaxis, alpha=0.5), subset=parentsubset) +
     ggplot2::geom_hex(bins = geom_hex_bins) +
     ggcyto::labs_cyto("marker") +
-    ggplot2::facet_grid(stats::as.formula(paste(conditioncol, "~", "conditioncol2"))) +
+    ggplot2::facet_grid(stats::as.formula(paste(conditioncol, "~", conditioncol2))) +
     ggcyto::geom_overlay(boolsubsetName, col="red", size=overlayDotSize, alpha=1) +
     ggplot2::geom_text(data=boolsubsetPopStatsMergeCollapsed, ggplot2::aes_string(x=get("geomTextX"), y=get("geomTextY"), label="Percent"),
                        colour="black", parse=FALSE, inherit.aes=FALSE,

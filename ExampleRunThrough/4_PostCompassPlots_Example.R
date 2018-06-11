@@ -1,15 +1,16 @@
 #!/usr/bin/env Rscript
-library(COMPASSHelpers)
+library(flowHelpers)
 library(flowWorkspace)
+library(here)
 
-compassResultsCD4Paths <- c("/home/malisa/git_repos/COMPASSHelpers/ExampleRunThrough/output/CompassOutput/CD4/4+_ESAT-6/COMPASSResult_4+_ESAT-6.rds",
-                       "/home/malisa/git_repos/COMPASSHelpers/ExampleRunThrough/output/CompassOutput/CD4/4+_CFP-10/COMPASSResult_4+_CFP-10.rds",
-                       "/home/malisa/git_repos/COMPASSHelpers/ExampleRunThrough/output/CompassOutput/CD4/4+_Ag85A/COMPASSResult_4+_Ag85A.rds",
-                       "/home/malisa/git_repos/COMPASSHelpers/ExampleRunThrough/output/CompassOutput/CD4/4+_Ag85B/COMPASSResult_4+_Ag85B.rds",
-                       "/home/malisa/git_repos/COMPASSHelpers/ExampleRunThrough/output/CompassOutput/CD4/4+_TB10.4/COMPASSResult_4+_TB10.4.rds")
+compassResultsCD4Paths <- c(here::here("ExampleRunThrough/output/CompassOutput/CD4/4+_ESAT-6/COMPASSResult_4+_ESAT-6.rds"),
+                       here::here("ExampleRunThrough/output/CompassOutput/CD4/4+_CFP-10/COMPASSResult_4+_CFP-10.rds"),
+                       here::here("ExampleRunThrough/output/CompassOutput/CD4/4+_Ag85A/COMPASSResult_4+_Ag85A.rds"),
+                       here::here("ExampleRunThrough/output/CompassOutput/CD4/4+_Ag85B/COMPASSResult_4+_Ag85B.rds"),
+                       here::here("ExampleRunThrough/output/CompassOutput/CD4/4+_TB10.4/COMPASSResult_4+_TB10.4.rds"))
 compassResultsCD4 <- lapply(compassResultsCD4Paths, readRDS)
 names(compassResultsCD4) <- c("ESAT-6", "CFP-10", "Ag85A", "Ag85B", "TB10.4")
-outdir <- "/home/malisa/git_repos/COMPASSHelpers/ExampleRunThrough/output/PostCompassPlots"
+outdir <- here::here("ExampleRunThrough/output/PostCompassPlots")
 
 # Plot the mean probablity of response for all interesting CD4+ COMPASSResults
 # Re-creating Fig. 4: http://www.jimmunol.org/content/195/10/4595
@@ -32,7 +33,7 @@ gatingSetListDir <- "/media/malisa/SharedStorage/uw/20170331_TB-ICS_ACS/GatingSe
 # Now pick an interesting, representative patient and highlight their polyfunctional cells in FACS plots
 # PATIENT ID 03-0311, Peptide ESAT-6, positive for IFNg, CD154, IL2, and TNFa, negative for IL22 and IL17a
 # left out IL4 to be consistent w/ the paper
-highlight.boolean.subset.facs.plot(path=gatingSetListDir,
+highlight.boolean.subset.flow.plot(path=gatingSetListDir,
                                    outdir=outdir,
                                    individualsCol="PATIENT ID",
                                    individual="03-0311",
@@ -46,7 +47,7 @@ highlight.boolean.subset.facs.plot(path=gatingSetListDir,
                                    geomTextY=250)
 
 # Same as above, TB10.4
-highlight.boolean.subset.facs.plot(path=gatingSetListDir,
+highlight.boolean.subset.flow.plot(path=gatingSetListDir,
                                    outdir=outdir,
                                    individualsCol="PATIENT ID",
                                    individual="03-0311",

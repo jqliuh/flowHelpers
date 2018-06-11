@@ -1,18 +1,18 @@
 #!/usr/bin/env Rscript
-library(COMPASSHelpers)
+library(flowHelpers)
 library(data.table)
 library(flowWorkspace)
 library(plyr)
 library(xlsx)
 
-gatingSetListOutDirTmp <- "/home/malisa/uw/20170331_TB-ICS_ACS/GatingSetList4COMPASSTmp"
-gatingSetListOutDir <- "/home/malisa/uw/20170331_TB-ICS_ACS/GatingSetList4COMPASS"
+gatingSetListOutDirTmp <- "/home/malisa/uw/COMPASS/20170331_TB-ICS_ACS/GatingSetList4COMPASSTmp"
+gatingSetListOutDir <- "/home/malisa/uw/COMPASS/20170331_TB-ICS_ACS/GatingSetList4COMPASS"
 
-gatingSetPaths <- c("/home/malisa/uw/20170331_TB-ICS_ACS/2013-05-03_ACS_peptides_batch1_GP/Batch1GatingSet",
-                    "/home/malisa/uw/20170331_TB-ICS_ACS/2013-05-17_ACS_peptides_batch2_GP/Batch2GatingSet",
-                    "/home/malisa/uw/20170331_TB-ICS_ACS/2013-06-26_ACS_peptides_batch3_RPT_GP/Batch3GatingSet",
-                    "/home/malisa/uw/20170331_TB-ICS_ACS/2013-05-31_ACS_peptides_batch4_GP/Batch4GatingSet",
-                    "/home/malisa/uw/20170331_TB-ICS_ACS/2013-06-07_ACS_peptides_batch5_GP/Batch5GatingSet")
+gatingSetPaths <- c("/home/malisa/uw/COMPASS/20170331_TB-ICS_ACS/2013-05-03_ACS_peptides_batch1_GP/Batch1GatingSet",
+                    "/home/malisa/uw/COMPASS/20170331_TB-ICS_ACS/2013-05-17_ACS_peptides_batch2_GP/Batch2GatingSet",
+                    "/home/malisa/uw/COMPASS/20170331_TB-ICS_ACS/2013-06-26_ACS_peptides_batch3_RPT_GP/Batch3GatingSet",
+                    "/home/malisa/uw/COMPASS/20170331_TB-ICS_ACS/2013-05-31_ACS_peptides_batch4_GP/Batch4GatingSet",
+                    "/home/malisa/uw/COMPASS/20170331_TB-ICS_ACS/2013-06-07_ACS_peptides_batch5_GP/Batch5GatingSet")
 
 # Do pre-merge marker name and channel name verification. (This should maybe be part of the QC step).
 gsList <- lapply(gatingSetPaths, load_gs) # This gsList is not a GatingSetList object, just a list of GatingSets.
@@ -97,7 +97,7 @@ pData(gsListForCOMPASS)$trt <- sapply(pData(gsListForCOMPASS)$Peptide, function(
 })
 
 # Add column which identifies TB infected vs uninfected
-infectionStatus <- read.table("/home/malisa/uw/20170331_TB-ICS_ACS/20131023_ACS_Clinical2.txt", header=TRUE, sep="\t")
+infectionStatus <- read.table("/home/malisa/uw/COMPASS/20170331_TB-ICS_ACS/20131023_ACS_Clinical2.txt", header=TRUE, sep="\t")
 pData(gsListForCOMPASS)$QuantiferonInTubeResult <- sapply(pData(gsListForCOMPASS)$`PATIENT ID`, function(x) {
   if (endsWith(x, "_POS")) {
     "positive"
