@@ -181,7 +181,7 @@ extractAndFilterDataForTsne <- function(gs=NULL, parentGate = NULL, degreeFilter
   childNodeOptions <- c(getChildren(gs[[1]], parentGate, path = 2), getChildren(gs[[1]], parentGate, path = 1),
                         getChildren(gs[[1]], parentGate, path = "full"), getChildren(gs[[1]], parentGate, path = "auto"))
   for(node in c(degreeFilterGates)) { stopifnot(node %in% childNodeOptions) }
-  
+
   # Obtain the row indices which correspond to cells which are in each gate in degreeFilterGates
   # indices are based on the root node (i.e. all events). parentGate indices will reflect any sampling performed above.
   # Save memory by subsetting by degreeFilter here. Use degreeFilterGateBooleans to filter the rows for events which have the required degree or higher
@@ -258,19 +258,21 @@ extractAndFilterDataForTsne <- function(gs=NULL, parentGate = NULL, degreeFilter
 }
 
 #' @import cytoUtils
-#' @import flowWorkspace
 #' @import data.table
 #' @import plyr
 #' @import dplyr
 #' @import magrittr
 #' @import Rtsne
 #' @import Rtsne.multicore
+#' @import flowWorkspace
+#' @export
 createTsneInputMatrix <- function(gs=NULL, parentGate = NULL, degreeFilterGates = c(), otherGates = c(), tsneMarkers = c(),
                                   groupBy = c(), degreeFilter = 0, seed = 999, theta = 0.9, cloneGs = TRUE) {
   if (is.null(gs)) stop ("required gs is missing ! STOPPING....")
   if (is.null(parentGate)) stop ("required parentGate is missing ! STOPPING....")
   if (length(groupBy) > 2) stop ("groupBy length can be at most 2")
-  
+
+
   gs <- if(class(gs) == "character") {
     load_gs(gs)
   } else {
@@ -283,7 +285,7 @@ createTsneInputMatrix <- function(gs=NULL, parentGate = NULL, degreeFilterGates 
   if (length(tsneMarkers) < 1) stop ("tsneMarkers can't be empty")
   if (any(!(tsneMarkers %in% allMarkerNames[,2]))) stop ("tsneMarkers must all be marker names")
   if (degreeFilter > length(degreeFilterGates)) { stop("degreeFilter must be less than the length of degreeFilterGates")}
-  
+
   gsClone <- if(length(groupBy)) {
     sampleGatingSetForTsne(gs=gs, parentGate = parentGate, groupBy = groupBy, seed = seed, cloneGs = cloneGs) 
     # seed gets set inside sampleGatingSetForTsne()
@@ -291,7 +293,7 @@ createTsneInputMatrix <- function(gs=NULL, parentGate = NULL, degreeFilterGates 
     set.seed(seed)
     gs
   }
-  
+
   # Return a list containing the tSNE input matrix and the full collapsed data
   return(extractAndFilterDataForTsne(gs=gsClone, parentGate = parentGate, degreeFilterGates = degreeFilterGates,
                                      otherGates = otherGates, tsneMarkers = tsneMarkers, degreeFilter = degreeFilter))

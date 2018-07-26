@@ -2,7 +2,7 @@
 % Please edit documentation in R/AddBooleanGate.R
 \name{addBooleanGate}
 \alias{addBooleanGate}
-\title{Adds boolean gate to the GatingSet or GatingSetList}
+\title{Adds a boolean gate to the GatingSet or GatingSetList}
 \usage{
 addBooleanGate(gs, booleanSubset, parentGate, overrideGate = FALSE,
   booleanGateName = NULL)
@@ -12,10 +12,10 @@ addBooleanGate(gs, booleanSubset, parentGate, overrideGate = FALSE,
 
 \item{booleanSubset}{The booleanSubset (a combination of existing gates) in string format, e.g. "8+/GMM+&!8+/GAMMADELTA"}
 
-\item{parentGate}{The gate under which the booleansubset is added}
+\item{parentGate}{The gate under which the booleansubset is to be added}
 
 \item{booleanGateName}{optional. What to call the new gate}
 }
 \description{
-Adds boolean gate to the GatingSet or GatingSetList
+Adds a boolean gate to the GatingSet or GatingSetList
 }

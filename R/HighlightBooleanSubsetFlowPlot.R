@@ -102,9 +102,14 @@ highlight.boolean.subset.flow.plot <- function(path,
                                                       which(flowWorkspace::pData(gs)[conditioncol] == ctrl))),]
   gsSub <- gs[rownames(metaSub)]
   
-  boolsubsetName <- gsub("/", ":", boolsubset)
+  boolsubsetName <- gsub("&", "and", gsub("!", "not_", gsub("/", ":", boolsubset)))
   addBooleanGate(gs=gs, booleanSubset=boolsubset, parentGate=parentsubset, overrideGate=FALSE, booleanGateName=boolsubsetName)
   boolsubsetPopStats <- flowWorkspace::getPopStats(gsSub, flowJo=FALSE, subpopulations=c(boolsubsetName))
+  
+  # When we plot the parent subset, we don't want to plot the events which are in the overlayed boolean subset as well as in the parent subset twice.
+  # So for the purposes of plotting only, define a new parent subset which has the overlayed plots removed from it.
+  parentsubset_ForPlot_name <- sprintf("%s_ForPlot", parentsubset)
+  addBooleanGate(gs=gs, booleanSubset=sprintf("%s&!%s", parentsubset, boolsubsetName), parentGate=parentsubset, overrideGate=FALSE, booleanGateName=parentsubset_ForPlot_name)
   
   # gsSubMetaData <- flowWorkspace::pData(gsSub)[,2:length(colnames(flowWorkspace::pData(gsSub)))]
   gsSubMetaData <- flowWorkspace::pData(gsSub)
@@ -112,6 +117,10 @@ highlight.boolean.subset.flow.plot <- function(path,
   colnames(gsSubMetaData)[length(colnames(gsSubMetaData))] <- "row.names"
   gsSubMetaDataCols <- if (conditioncol2 == ".") { c("row.names", conditioncol) } else
     {c("row.names", conditioncol, conditioncol2) }
+  
+  # print(gsSubMetaDataCols)
+  # print(head(boolsubsetPopStats[, c("name", "Population", "Count", "ParentCount")]))
+  # print(head(gsSubMetaData[, gsSubMetaDataCols]))
   
   boolsubsetPopStatsMerge <- merge(x=boolsubsetPopStats[, c("name", "Population", "Count", "ParentCount")], y=gsSubMetaData[, gsSubMetaDataCols], by.x="name", by.y="row.names")
   
@@ -177,8 +186,9 @@ highlight.boolean.subset.flow.plot <- function(path,
   # Rename conditioncol2 column in case it contains characters like spaces, which mess up formulas
   colnames(pData(gsSub))[which(colnames(pData(gsSub)) == conditioncol2)] <- "conditioncol2"
   colnames(boolsubsetPopStatsMergeCollapsed)[which(colnames(boolsubsetPopStatsMergeCollapsed) == conditioncol2)] <- "conditioncol2"
+  conditioncol2 <- "conditioncol2"
   
-  flowplot <- ggcyto::ggcyto(gsSub, ggplot2::aes_string(x=xaxis, y=yaxis, alpha=0.5), subset=parentsubset) +
+  flowplot <- ggcyto::ggcyto(gsSub, ggplot2::aes_string(x=xaxis, y=yaxis, alpha=0.5), subset=parentsubset_ForPlot_name) +
     ggplot2::geom_hex(bins = geom_hex_bins) +
     ggcyto::labs_cyto("marker") +
     ggplot2::facet_grid(stats::as.formula(paste(conditioncol, "~", conditioncol2))) +
