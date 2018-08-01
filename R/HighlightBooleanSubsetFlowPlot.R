@@ -108,7 +108,7 @@ highlight.boolean.subset.flow.plot <- function(path,
   
   # When we plot the parent subset, we don't want to plot the events which are in the overlayed boolean subset as well as in the parent subset twice.
   # So for the purposes of plotting only, define a new parent subset which has the overlayed plots removed from it.
-  parentsubset_ForPlot_name <- sprintf("%s_ForPlot", parentsubset)
+  parentsubset_ForPlot_name <- sprintf("%s_no%s_ForPlot", parentsubset, boolsubsetName)
   addBooleanGate(gs=gs, booleanSubset=sprintf("%s&!%s", parentsubset, boolsubsetName), parentGate=parentsubset, overrideGate=FALSE, booleanGateName=parentsubset_ForPlot_name)
   
   # gsSubMetaData <- flowWorkspace::pData(gsSub)[,2:length(colnames(flowWorkspace::pData(gsSub)))]
