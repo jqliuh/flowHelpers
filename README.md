@@ -21,32 +21,39 @@ install_github("seshadrilab/flowHelpers")
 
 # Dependencies
 
-Packages used:
-
 ```
 BH # required by flowWorkspace
 coin
-COMPASS
-cytoUtils
 RcppArmadillo
 coin
 data.table
 dplyr
 extrafont
-flowCore
-flowWorkspace
-ggcyto
 ggplot2
 ggsignif # for significance bars
 grDevices
 grid
 here # for path managemnt
 magrittr
-ncdfFlow
 plyr
 pryr
 Rtsne # if you want to use multiple threads, get the multicore version by installing devtools::install_github("jkrijthe/Rtsne", ref = "openmp")
 stringr
-svglite
+svglite # for saving plots
 tidyr
 ```
+
+You can use bioconductor or `devtools::install_github()` to install the relevant flow cytometry packages:
+
+```
+COMPASS
+cytoUtils # install using devtools::install_github("RGLab/cytoUtils")
+flowCore
+flowWorkspace
+ggcyto
+ncdfFlow
+```
+
+[openCyto](https://bioconductor.org/packages/release/bioc/html/openCyto.html) should install flowWorkspace, flowCore, and ncdfFlow.  
+[ggcyto](https://bioconductor.org/packages/release/bioc/html/ggcyto.html) for bivariate flow dot plots.  
+[COMPASS](https://bioconductor.org/packages/release/bioc/html/COMPASS.html)  
