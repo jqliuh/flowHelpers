@@ -24,21 +24,28 @@ install_github("seshadrilab/flowHelpers")
 Packages used:
 
 ```
-BH
+BH # required by flowWorkspace
+coin
 COMPASS
+cytoUtils
 RcppArmadillo
 coin
 data.table
+dplyr
+extrafont
 flowCore
 flowWorkspace
 ggcyto
 ggplot2
-ggsignif
+ggsignif # for significance bars
 grDevices
+grid
+here # for path managemnt
+magrittr
 ncdfFlow
 plyr
 pryr
-stats
+Rtsne # if you want to use multiple threads, get the multicore version by installing devtools::install_github("jkrijthe/Rtsne", ref = "openmp")
 stringr
 svglite
 tidyr

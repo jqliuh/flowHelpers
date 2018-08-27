@@ -4,11 +4,11 @@
 \alias{lineplot.boolean.subset.proportions}
 \title{lineplot.boolean.subset.proportions}
 \usage{
-lineplot.boolean.subset.proportions(path, gsOrGsList = NULL, outdir = NULL,
-  exp, ctrl, parentsubset, boolsubset, ylimits = NULL, shortenTitle = FALSE,
-  ctrlTrtCol, uniquePointCols, timeCol, time1Value, time2Value, patientCol,
-  titleHeader = NULL, gsSubset = NULL, labelPoints = FALSE,
-  showPvalue = TRUE, pngORsvg = "png")
+lineplot.boolean.subset.proportions(path, gsOrGsList = NULL,
+  outdir = NULL, exp, ctrl, parentsubset, boolsubset, ylimits = NULL,
+  shortenTitle = FALSE, ctrlTrtCol, uniquePointCols, timeCol, time1Value,
+  time2Value, patientCol, titleHeader = NULL, gsSubset = NULL,
+  labelPoints = FALSE, showPvalue = TRUE, pngORsvg = "png")
 }
 \arguments{
 \item{path}{path to directory holding GatingSetList or GatingSet}

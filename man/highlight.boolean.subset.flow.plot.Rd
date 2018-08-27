@@ -4,11 +4,12 @@
 \alias{highlight.boolean.subset.flow.plot}
 \title{Overlay and Highlight Polyfunctional Cell Subsets on a Flow plot}
 \usage{
-highlight.boolean.subset.flow.plot(path, gsOrGsList = NULL, outdir = NULL,
-  individualsCol, individual, conditioncol, exp, ctrl, conditioncol2 = ".",
-  parentsubset, boolsubset, xaxis, yaxis, facetorder = NULL,
-  facetorder2 = NULL, geomTextY = 5, geomTextX = 200, pngORsvg = "png",
-  width = NULL, overlayDotSize = 0.4, themeBaseSize = 18,
+highlight.boolean.subset.flow.plot(path, gsOrGsList = NULL,
+  outdir = NULL, individualsCol, individual, conditioncol, exp, ctrl,
+  conditioncol2 = ".", parentsubset, boolsubset, xaxis, yaxis,
+  facetorder = NULL, facetorder2 = NULL, geomTextY = 5,
+  geomTextX = 200, pngORsvg = "png", width = NULL,
+  overlayDotSize = 0.4, themeBaseSize = 18,
   stripLegendGridAxesTitle = FALSE, xlims = NULL, ylims = NULL,
   axestitle_fontsize = NULL, font = NULL, percentage_fontsize = NULL,
   geom_hex_bins = 120)

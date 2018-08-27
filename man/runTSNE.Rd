@@ -2,11 +2,12 @@
 % Please edit documentation in R/runTSNE.R
 \name{runTSNE}
 \alias{runTSNE}
-\title{Run tSNE from (R pkg 'Rtsne' or 'Rtsne.multicore') on a GatingSet}
+\title{Run tSNE from (R pkg 'Rtsne') on a GatingSet}
 \usage{
 runTSNE(gs = NULL, parentGate = NULL, degreeFilterGates = c(),
-  otherGates = c(), tsneMarkers = c(), groupBy = c(), degreeFilter = 0,
-  seed = 999, theta = 0.9, numThreads = 1, cloneGs = TRUE, ...)
+  otherGates = c(), tsneMarkers = c(), groupBy = c(),
+  degreeFilter = 0, seed = 999, theta = 0.9, numThreads = 1,
+  cloneGs = TRUE, ...)
 }
 \arguments{
 \item{gs}{a GatingSet object or path to a GatingSet directory, properly gated data with annotation in its pData}

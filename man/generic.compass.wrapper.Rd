@@ -6,8 +6,8 @@
 \usage{
 generic.compass.wrapper(path = NULL, seed = NULL, outdir = NULL,
   cnode = NULL, nodemarkermap = NULL, individuals = NULL,
-  grouping = NULL, uniqueruns = NULL, lineplotxvar = NULL, iter = 40000,
-  lineplotgroupby = NULL, countFilterThreshold = 0)
+  grouping = NULL, uniqueruns = NULL, lineplotxvar = NULL,
+  iter = 40000, lineplotgroupby = NULL, countFilterThreshold = 0)
 }
 \arguments{
 \item{path}{The path to the folder in which the GatingSetList or GatingSet is saved}

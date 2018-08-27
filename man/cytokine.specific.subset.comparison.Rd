@@ -6,9 +6,10 @@
 \usage{
 cytokine.specific.subset.comparison(compassResultOrPath, gsOrGsListOrPath,
   cytokineOfInterestGate, parentSubset, threshold = 0.01, antigenCol,
-  stimAntigen, controlAntigen, stratifyBy, showSignificanceBracket = TRUE,
-  showTitle = TRUE, sampleIDCol, outdir = NULL, themeBaseSize = 15,
-  removeGridAndBg = FALSE, stratifyByColors = NULL, ymax = NULL,
+  stimAntigen, controlAntigen, stratifyBy,
+  showSignificanceBracket = TRUE, showTitle = TRUE, sampleIDCol,
+  outdir = NULL, themeBaseSize = 15, removeGridAndBg = FALSE,
+  stratifyByColors = NULL, ymax = NULL,
   stratifyByValueMinuend = NULL, stratifyByValueSubtrahend = NULL)
 }
 \arguments{

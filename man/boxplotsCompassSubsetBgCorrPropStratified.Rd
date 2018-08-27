@@ -5,13 +5,14 @@
 \alias{boxplotsCompassSubsetBgCorrPropStratified}
 \title{Create Stratified Boxplots of the Background Corrected Proportions for COMPASS subsets}
 \usage{
-boxplotsCompassSubsetBgCorrPropStratified(compass.subset.comparisons.result,
+
+  boxplotsCompassSubsetBgCorrPropStratified(compass.subset.comparisons.result,
   cr_cats, stratifyBy, sampleIDCol, parentSubset, themeBaseSize = 18,
   removeGridAndBg = FALSE, showSignificanceBracket = TRUE,
   pvalue_fontsize = NULL, axestitle_fontsize = NULL,
   axestick_fontsize = NULL, font = NULL, geom_jitter_width = 0.05,
-  xaxis_title = stratifyBy, dot_size = 0.75, legend_position = c(1, 1),
-  show_points = F, padj_method = "bonferroni", ylim = NULL,
+  xaxis_title = stratifyBy, dot_size = 0.75, legend_position = c(1,
+  1), show_points = F, padj_method = "bonferroni", ylim = NULL,
   p_alpha = 0.05, stratifyBy_colors = NULL, box_fill_alpha = 0.7,
   legend_fontsize = NULL)
 }

@@ -5,9 +5,10 @@
 \title{Prepare flow data for COMPASS}
 \usage{
 prepare.gating.set.list.4.compass(xmlFiles = NULL, fcsFiles = NULL,
-  gsDirs = NULL, gsList = list(), outDir = NULL, sampleGroups = NULL,
-  keywords2import = c(), keyword4samples2exclude = NULL,
-  samples2exclude = NULL, returnGSList = FALSE)
+  gsDirs = NULL, gsList = list(), outDir = NULL,
+  sampleGroups = NULL, keywords2import = c(),
+  keyword4samples2exclude = NULL, samples2exclude = NULL,
+  returnGSList = FALSE)
 }
 \arguments{
 \item{xmlFiles}{character vector (xmlFiles AND/OR gsDirs AND/OR gsList is required)}

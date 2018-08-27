@@ -6,9 +6,9 @@
 \usage{
 \method{boxplot}{subset.proportion.stats}(gsOrGsListOrPath,
   existingSubset = NULL, booleanSubset = NULL, parentGate,
-  parentGateForProportionCalc = parentGate, groupBy = NULL, outdir = NULL,
-  overrideGate = FALSE, ylimits = NULL, baseSize = 19,
-  sampleIDCol = NULL, jitterWidth = 0.15)
+  parentGateForProportionCalc = parentGate, groupBy = NULL,
+  outdir = NULL, overrideGate = FALSE, ylimits = NULL,
+  baseSize = 19, sampleIDCol = NULL, jitterWidth = 0.15)
 }
 \arguments{
 \item{gsOrGsListOrPath}{Either a GatingSet, a GatingSetList, or path to one of these objects on disk}

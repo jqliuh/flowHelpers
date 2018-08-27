@@ -263,7 +263,6 @@ extractAndFilterDataForTsne <- function(gs=NULL, parentGate = NULL, degreeFilter
 #' @import dplyr
 #' @import magrittr
 #' @import Rtsne
-#' @import Rtsne.multicore
 #' @import flowWorkspace
 #' @export
 createTsneInputMatrix <- function(gs=NULL, parentGate = NULL, degreeFilterGates = c(), otherGates = c(), tsneMarkers = c(),
@@ -302,7 +301,7 @@ createTsneInputMatrix <- function(gs=NULL, parentGate = NULL, degreeFilterGates 
 # Using this method the user should just need to supply parentGate, degreeFilterNodes, degreeFilter, tsneMarkers (And just return all the markers)
 # Require that all channels have marker names (a little stringent, but whatever) and are unique
 
-#' Run tSNE from (R pkg 'Rtsne' or 'Rtsne.multicore') on a GatingSet
+#' Run tSNE from (R pkg 'Rtsne') on a GatingSet
 #' 
 #' - If groupBy is empty, no sampling is done. If length is 1, equal number of cells are sampled from each category in the column.
 #' If length is 2, equal number of cells are sampled from each category in the first column. Additionally, within each category,
@@ -335,7 +334,6 @@ createTsneInputMatrix <- function(gs=NULL, parentGate = NULL, degreeFilterGates 
 #' @import dplyr
 #' @import magrittr
 #' @import Rtsne
-#' @import Rtsne.multicore
 runTSNE <- function (gs=NULL, parentGate = NULL, degreeFilterGates = c(), otherGates = c(), tsneMarkers = c(),
                      groupBy = c(), degreeFilter = 0, seed = 999, theta = 0.9, numThreads = 1, cloneGs = TRUE, ...) {
   data4tsne <- createTsneInputMatrix(gs = gs,
@@ -351,8 +349,10 @@ runTSNE <- function (gs=NULL, parentGate = NULL, degreeFilterGates = c(), otherG
   
   cat("\n starting tSNE run at ", date(), " with ", numThreads, " threads\n")
   system.time(tsne_out <- if(numThreads > 1) {
-    Rtsne.multicore::Rtsne.multicore(X = data4tsne$input_mat, check_duplicates = FALSE, num_threads = numThreads,
-                                     ...)
+    # Rtsne.multicore::Rtsne.multicore(X = data4tsne$input_mat, check_duplicates = FALSE, num_threads = numThreads,
+    #                                  ...)
+    Rtsne(data4tsne$input_mat, check_duplicates = FALSE, num_threads = numThreads,
+          ...)
   } else {
     Rtsne(data4tsne$input_mat, check_duplicates = FALSE,
           ...)
