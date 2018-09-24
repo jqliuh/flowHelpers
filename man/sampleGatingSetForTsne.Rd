@@ -5,7 +5,7 @@
 \title{Sample a GatingSet}
 \usage{
 sampleGatingSetForTsne(gs = NULL, parentGate = NULL, groupBy = c(),
-  seed = 999, cloneGs = TRUE)
+  n = NULL, seed = 999, cloneGs = TRUE)
 }
 \arguments{
 \item{gs}{a GatingSet object or path to a GatingSet directory, properly gated data with annotation in its pData}
@@ -13,6 +13,8 @@ sampleGatingSetForTsne(gs = NULL, parentGate = NULL, groupBy = c(),
 \item{parentGate}{a \code{string} describing the gate upstream of the cytokine gates (eg. "CD4", "cd8+", etc...)}
 
 \item{groupBy}{a \code{vector} of \code{strings} describing columns of the \code{gatingSet}'s phenoData.}
+
+\item{n}{use this to optionally specify the size of each group in the first category of the groupBy vector}
 }
 \value{
 a sampled \code{GatingSet}

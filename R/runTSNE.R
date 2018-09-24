@@ -3,12 +3,13 @@
 #' @param gs a GatingSet object or path to a GatingSet directory, properly gated data with annotation in its pData
 #' @param parentGate a \code{string} describing the gate upstream of the cytokine gates (eg. "CD4", "cd8+", etc...)
 #' @param groupBy a \code{vector} of \code{strings} describing columns of the \code{gatingSet}'s phenoData.
+#' @param n use this to optionally specify the size of each group in the first category of the groupBy vector
 #' 
 #' @import flowWorkspace
 #' @import data.table
 #' @return a sampled \code{GatingSet}
 #' @export
-sampleGatingSetForTsne <- function(gs=NULL, parentGate = NULL, groupBy = c(), seed = 999, cloneGs = TRUE) {
+sampleGatingSetForTsne <- function(gs=NULL, parentGate = NULL, groupBy = c(), n = NULL, seed = 999, cloneGs = TRUE) {
   if (is.null(gs)) stop ("required gs is missing ! STOPPING....")
   if (is.null(parentGate)) stop ("required parentGate is missing ! STOPPING....")
   if (length(groupBy) > 2) stop ("groupBy length can be at most 2")
@@ -40,8 +41,12 @@ sampleGatingSetForTsne <- function(gs=NULL, parentGate = NULL, groupBy = c(), se
   pd <- merge(pd, parent_count, by = "name")
   
   if (length(groupBy) == 1) {
-    nTcells <- min(pd[, sum(get(parentGate)), by = groupBy][, 
+    nTcells <- if(!is.null(n)) {
+        n
+      } else {
+        min(pd[, sum(get(parentGate)), by = groupBy][, 
                                                             V1])
+      }
     cat("after grouping by '", groupBy, "', all groups will have at least", 
         nTcells, "cells.\n")
     
@@ -60,7 +65,7 @@ sampleGatingSetForTsne <- function(gs=NULL, parentGate = NULL, groupBy = c(), se
       for (sn in name) {
         thisInd <- ind.vec[[sn]]
         gh <- gsClone[[sn]]
-        updateIndices(gh, parentGate, thisInd)
+        flowWorkspace::updateIndices(gh, parentGate, thisInd)
       }
     }, by = groupBy] 
   } else if (length(groupBy) == 2) {
@@ -69,10 +74,14 @@ sampleGatingSetForTsne <- function(gs=NULL, parentGate = NULL, groupBy = c(), se
     # Usually, this means: Find maximum group size with equal # cells per sample within a group
     pdAgg <- aggregate(pd[,get(parentGate)], by=list(pd[,get(groupBy[[1]])], pd[,get(groupBy[[2]])]), sum)
     # pdAgg now has 3 columns, Group.1, Group.2, and x (the sum of all sample cell counts for that condition)
-    finalGroup1Size <- min((pdAgg %>%
-                              group_by(Group.1) %>%
-                              dplyr::summarize(maxGroupSize = min(x) * length(x)))
-                           $maxGroupSize)
+    finalGroup1Size <- if(!is.null(n)) {
+        n
+      } else {
+        min((pdAgg %>%
+          group_by(Group.1) %>%
+          dplyr::summarize(maxGroupSize = min(x) * length(x)))
+       $maxGroupSize)
+      }
     
     cat("after grouping by '", groupBy[[1]], "' and '", groupBy[[2]], "', all '", groupBy[[1]], "', groups will have ~", 
         finalGroup1Size, "cells.\n")
@@ -121,7 +130,7 @@ sampleGatingSetForTsne <- function(gs=NULL, parentGate = NULL, groupBy = c(), se
     # After the previous step, there should be equal number of cells for each Group.1 value:
     cellsPerGroup1 <- pd2[,{sum(.SD[,c("Group.2.Size")])}, by=c(groupBy[1])]
     if(!(length(unique(cellsPerGroup1$V1)) == 1)) {
-      print("Unequal number of cells to be samples for each Group.1 value:")
+      print("Unequal number of cells to be sampled for each Group.1 value:")
       print(cellsPerGroup1)
     }
     
@@ -142,7 +151,7 @@ sampleGatingSetForTsne <- function(gs=NULL, parentGate = NULL, groupBy = c(), se
       for (sn in nameTmp) {
         thisInd <- ind.vec[[sn]]
         gh <- gsClone[[sn]]
-        updateIndices(gh, parentGate, thisInd)
+        flowWorkspace::updateIndices(gh, parentGate, thisInd)
       }
     }, by=groupBy]
     print(pd2)
