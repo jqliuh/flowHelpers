@@ -7,7 +7,7 @@
 runOneSense(gs = NULL, parentGate = NULL, degreeFilterGates = c(),
   otherGates = c(), tsneMarkers = c(), groupBy = c(),
   degreeFilter = 0, seed = 999, theta = 0.9, cloneGs = TRUE,
-  dimensionMarkers = list(), ...)
+  dimensionMarkers = list(), n = NULL, ...)
 }
 \arguments{
 \item{dimensionMarkers}{a list of character vectors, containing the markers which are to be run for each One-SENSE dimension}

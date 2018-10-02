@@ -275,7 +275,7 @@ extractAndFilterDataForTsne <- function(gs=NULL, parentGate = NULL, degreeFilter
 #' @import flowWorkspace
 #' @export
 createTsneInputMatrix <- function(gs=NULL, parentGate = NULL, degreeFilterGates = c(), otherGates = c(), tsneMarkers = c(),
-                                  groupBy = c(), degreeFilter = 0, seed = 999, theta = 0.9, cloneGs = TRUE) {
+                                  groupBy = c(), degreeFilter = 0, seed = 999, theta = 0.9, cloneGs = TRUE, n = NULL) {
   if (is.null(gs)) stop ("required gs is missing ! STOPPING....")
   if (is.null(parentGate)) stop ("required parentGate is missing ! STOPPING....")
   if (length(groupBy) > 2) stop ("groupBy length can be at most 2")
@@ -295,7 +295,7 @@ createTsneInputMatrix <- function(gs=NULL, parentGate = NULL, degreeFilterGates 
   if (degreeFilter > length(degreeFilterGates)) { stop("degreeFilter must be less than the length of degreeFilterGates")}
 
   gsClone <- if(length(groupBy)) {
-    sampleGatingSetForTsne(gs=gs, parentGate = parentGate, groupBy = groupBy, seed = seed, cloneGs = cloneGs) 
+    sampleGatingSetForTsne(gs=gs, parentGate = parentGate, groupBy = groupBy, seed = seed, cloneGs = cloneGs, n = n) 
     # seed gets set inside sampleGatingSetForTsne()
   } else {
     set.seed(seed)
@@ -344,7 +344,7 @@ createTsneInputMatrix <- function(gs=NULL, parentGate = NULL, degreeFilterGates 
 #' @import magrittr
 #' @import Rtsne
 runTSNE <- function (gs=NULL, parentGate = NULL, degreeFilterGates = c(), otherGates = c(), tsneMarkers = c(),
-                     groupBy = c(), degreeFilter = 0, seed = 999, theta = 0.9, numThreads = 1, cloneGs = TRUE, ...) {
+                     groupBy = c(), degreeFilter = 0, seed = 999, theta = 0.9, numThreads = 1, cloneGs = TRUE, n = NULL, ...) {
   data4tsne <- createTsneInputMatrix(gs = gs,
                                      parentGate = parentGate,
                                      degreeFilterGates = degreeFilterGates,
@@ -354,7 +354,8 @@ runTSNE <- function (gs=NULL, parentGate = NULL, degreeFilterGates = c(), otherG
                                      degreeFilter = degreeFilter,
                                      seed = seed,
                                      theta = theta,
-                                     cloneGs = cloneGs)
+                                     cloneGs = cloneGs,
+                                     n = n)
   
   cat("\n starting tSNE run at ", date(), " with ", numThreads, " threads\n")
   system.time(tsne_out <- if(numThreads > 1) {
@@ -387,7 +388,7 @@ runTSNE <- function (gs=NULL, parentGate = NULL, degreeFilterGates = c(), otherG
 #' @import magrittr
 #' @import Rtsne
 runOneSense <- function (gs=NULL, parentGate = NULL, degreeFilterGates = c(), otherGates = c(), tsneMarkers = c(),
-                         groupBy = c(), degreeFilter = 0, seed = 999, theta = 0.9, cloneGs = TRUE, dimensionMarkers = list(), ...) {
+                         groupBy = c(), degreeFilter = 0, seed = 999, theta = 0.9, cloneGs = TRUE, dimensionMarkers = list(), n = NULL, ...) {
   if(length(dimensionMarkers) > 3) stop("There is a maximum of 3 output dimensions (feel free to modify code if you want more)")
   data4tsne <- createTsneInputMatrix(gs = gs,
                                      parentGate = parentGate,
@@ -398,7 +399,8 @@ runOneSense <- function (gs=NULL, parentGate = NULL, degreeFilterGates = c(), ot
                                      degreeFilter = degreeFilter,
                                      seed = seed,
                                      theta = theta,
-                                     cloneGs = cloneGs)
+                                     cloneGs = cloneGs,
+                                     n = n)
   
   # Make sure that each marker in dimensionMarkers exists in colnames(data4tsne$input_mat). This corressponds to degreeFilterGates markers and otherMarkers
   lapply(dimensionMarkers, function(v) { if(!all(v %in% colnames(data4tsne$input_mat))) stop("all dimensionMarkers markers must exist in input_mat columns")})
